@@ -194,6 +194,10 @@ async function fetchNews() {
                     const mediaContent = item.querySelector('content[medium="image"]');
                     if (mediaContent) imageUrl = mediaContent.getAttribute('url') || '';
                 }
+                if (!imageUrl) {
+                    const mediaThumbnail = item.querySelector('thumbnail'); // <media:thumbnail> etiketini kontrol et
+                    if (mediaThumbnail) imageUrl = mediaThumbnail.getAttribute('url') || '';
+                }
                 if (!imageUrl && link.includes('onedio.com')) {
                     console.log(`Onedio haber için resim bulunamadı, link: ${link}`);
                     imageUrl = 'https://via.placeholder.com/150'; // Hâlâ bulunamazsa placeholder
