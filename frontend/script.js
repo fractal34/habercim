@@ -18,7 +18,7 @@ const categoryColors = {
 };
 
 // CORS proxy URL'si
-const corsProxy = 'https://habercim-proxy.vercel.app/api/proxy?url=';
+const corsProxy = 'https://habercim.vercel.app/api/proxy?url=';
 
 // Her kategoriden çekilecek maksimum haber sayısı
 const MAX_NEWS_PER_CATEGORY = 50;
