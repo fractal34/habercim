@@ -93,7 +93,7 @@ async function fetchNews() {
             try {
                 response = await fetch(proxyUrl, {
                     headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
                     },
                     mode: 'cors',
                 });
@@ -104,6 +104,10 @@ async function fetchNews() {
 
             if (!response.ok) {
                 console.error(`Failed to fetch RSS for ${category}: ${response.status} (${response.statusText})`);
+                if (url.includes('motor1.com')) {
+                    console.log(`Motor1 RSS fetch denemesi: ${proxyUrl}`);
+                    console.log(`Response status: ${response.status}, Response text: ${await response.text()}`);
+                }
                 continue;
             }
 
