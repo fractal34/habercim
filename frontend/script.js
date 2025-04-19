@@ -191,17 +191,14 @@ async function fetchNews() {
                     if (enclosure) imageUrl = enclosure.getAttribute('url') || '';
                 }
                 if (!imageUrl) {
-                    const mediaContent = item.querySelector('content[medium="image"]');
-                    if (mediaContent) imageUrl = mediaContent.getAttribute('url') || '';
-                }
-                if (!imageUrl && link.includes('onedio.com')) {
-                    // XML string'ini al ve media:thumbnail etiketini regex ile bul
-                    const serializer = new XMLSerializer();
-                    const itemXml = serializer.serializeToString(item);
-                    const thumbnailMatch = itemXml.match(/<media:thumbnail[^>]+url="([^"]+)"/i);
-                    if (thumbnailMatch && thumbnailMatch[1]) {
-                        imageUrl = thumbnailMatch[1];
-                        console.log(`Onedio haber için resim bulundu: ${imageUrl}, link: ${link}`);
+                    const mediaContents = item.getElementsByTagName('media:content');
+                    for (let i = 0; i < mediaContents.length; i++) {
+                        const mediaContent = mediaContents[i];
+                        const type = mediaContent.getAttribute('type') || '';
+                        if (type.startsWith('image/')) { // image/jpg, image/png gibi türleri kapsar
+                            imageUrl = mediaContent.getAttribute('url') || '';
+                            break;
+                        }
                     }
                 }
                 if (!imageUrl && link.includes('onedio.com')) {
