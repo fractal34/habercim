@@ -78,17 +78,29 @@ body {
     border-bottom: 1px solid #d13700;
 }
 
-.category-source-title {  /* Alt kategoride kullan */
+.category-source-title {
     font-size: 13px;
     font-weight: bold;
     line-height: 0.5;
     flex-grow: 1;
-    padding: 3px 3px 3px; /* Çakışma çözüldü, padding-bottom: 8px eklendi */
+    padding: 3px 3px 3px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     color: white;
+}
+
+.source-item {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 14px;
+}
+
+.source-item input[type="checkbox"] {
+    margin-right: 5px;
 }
 
 .category-btn {
@@ -183,7 +195,7 @@ body {
     font-weight: bold;
     line-height: 1.3;
     flex-grow: 1;
-    padding: 8px 8px 8px; /* Çakışma çözüldü, padding-bottom: 8px eklendi */
+    padding: 8px 8px 8px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -198,7 +210,7 @@ body {
     padding: 3px 5px;
     border-radius: 4px;
     margin: 8px;
-    background-color: rgba(0, 0, 0, 0.3); /* Çakışma çözüldü, koyuluk katmanı eklendi */
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .news-detail {
