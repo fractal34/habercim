@@ -4,9 +4,9 @@ const categoryRssUrls = {
     'Spor': 'http://www.haberturk.com/rss/spor.xml',
     'Magazin': 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml',
     'Dünya': 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml',
-    'Gündem': 'https://www.milliyet.com.tr/rss/rssnew/gundemrss.xml',
-    'Otomobil': 'https://www.otohaber.com.tr/rss', // Güncellendi
-    'Teknoloji': 'https://onedio.com/Publisher/publisher-teknoloji.rss', // Yeni eklendi
+    'Gündem': 'https://www.milliyet.com.tr/rss/rssnew/gundem.xml',
+    'Otomobil': 'https://www.otoaktuel.com.tr/rss',
+    'Teknoloji': 'https://onedio.com/Publisher/publisher-teknoloji.rss',
 };
 
 const categoryColors = {
@@ -16,7 +16,7 @@ const categoryColors = {
     'Dünya': '#ffa500',
     'Gündem': '#0000ff',
     'Otomobil': '#00008B',
-    'Teknoloji': '#00BFFF', // Yeni renk: Derin Gökyüzü Mavisi
+    'Teknoloji': '#00BFFF',
 };
 
 // CORS proxy URL'si
@@ -104,10 +104,6 @@ async function fetchNews() {
 
             if (!response.ok) {
                 console.error(`Failed to fetch RSS for ${category}: ${response.status} (${response.statusText})`);
-                if (url.includes('motor1.com')) {
-                    console.log(`Motor1 RSS fetch denemesi: ${proxyUrl}`);
-                    console.log(`Response status: ${response.status}, Response text: ${await response.text()}`);
-                }
                 continue;
             }
 
@@ -157,10 +153,10 @@ async function fetchNews() {
                     const match = link.match(/(\d+)$/);
                     newsId = match ? match[0] : link;
                     sourcePrefix = 'onedio-';
-                } else if (link.includes('motor1.com')) {
+                } else if (link.includes('otoaktuel.com.tr')) {
                     const match = link.match(/(\d+)$/);
                     newsId = match ? match[0] : link;
-                    sourcePrefix = 'motor1-';
+                    sourcePrefix = 'otoaktuel-';
                 } else {
                     newsId = link;
                     sourcePrefix = 'unknown-';
@@ -199,7 +195,7 @@ async function fetchNews() {
                     if (mediaContent) imageUrl = mediaContent.getAttribute('url') || '';
                 }
                 if (!imageUrl) {
-                    const mediaThumbnail = item.querySelector('thumbnail'); // <media:thumbnail> etiketini kontrol et
+                    const mediaThumbnail = item.querySelector('media\\:thumbnail'); // Namespace'i doğru şekilde ele alıyoruz
                     if (mediaThumbnail) imageUrl = mediaThumbnail.getAttribute('url') || '';
                 }
                 if (!imageUrl && link.includes('onedio.com')) {
@@ -214,7 +210,7 @@ async function fetchNews() {
                     description,
                     date: pubDate,
                     link,
-                    source: link.includes('milliyet') ? 'milliyet' : link.includes('haberturk') ? 'haberturk' : link.includes('onedio') ? 'onedio' : link.includes('motor1') ? 'motor1' : 'unknown',
+                    source: link.includes('milliyet') ? 'milliyet' : link.includes('haberturk') ? 'haberturk' : link.includes('onedio') ? 'onedio' : link.includes('otoaktuel') ? 'otoaktuel' : 'unknown',
                 };
 
                 console.log(`Adding news item to ${category}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
