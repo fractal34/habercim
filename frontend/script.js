@@ -1,327 +1,339 @@
-// Kategoriler ve RSS URL'leri
-const categoryRssUrls = {
-    'Son Dakika': 'https://www.milliyet.com.tr/rss/rssnew/sondakikarss.xml',
-    'Spor': 'http://www.haberturk.com/rss/spor.xml',
-    'Magazin': 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml',
-    'Dünya': 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml',
-    'Gündem': 'https://www.milliyet.com.tr/rss/rssnew/gundemrss.xml',
-    'Otomobil': 'https://www.milliyet.com.tr/rss/rssnew/otomobilrss.xml', // Otomobil RSS URL’si
-};
-
-const categoryColors = {
-    'Son Dakika': '#ff0000',
-    'Spor': '#008000',
-    'Magazin': '#800080',
-    'Dünya': '#ffa500',
-    'Gündem': '#0000ff',
-    'Otomobil': '#00008B', // Otomobil için koyu mavi renk
-};
-
 // CORS proxy URL'si
 const corsProxy = 'https://habercim.vercel.app/api/proxy?url=';
 
-// Her kategoriden çekilecek maksimum haber sayısı
-const MAX_NEWS_PER_CATEGORY = 50;
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Elementleri ---
+    const categoryMenu = document.getElementById('category-menu');
+    const newsList = document.getElementById('news-list');
+    const newsDetailFrame = document.getElementById('news-iframe');
+    const clockElement = document.getElementById('clock');
+    const loadingMessage = document.querySelector('.loading-message');
 
-// Seçili kategoriler (varsayılan olarak Son Dakika seçili)
-let selectedCategories = ['Son Dakika'];
-let allNews = [];
-let displayedNewsCount = 50;
-let isLoadingMore = false;
-let lastRenderedNewsCount = 0;
+    // --- Sabitler ve Ayarlar ---
+    const PROXY_URL = '/api/proxy?url='; // Vercel proxy endpoint'i
+    const CATEGORIES = {
+        'Son Dakika': { url: 'https://www.milliyet.com.tr/rss/rssnew/sondakikarss.xml', color: '#ff0000' },
+        'Gündem': { url: 'https://www.milliyet.com.tr/rss/rssnew/gundem.xml', color: '#0000ff' },
+        'Spor': { url: 'http://www.hurriyet.com.tr/rss/spor', color: '#008000' },
+        'Magazin': { url: 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml', color: '#800080' },
+        'Politika': { url: 'https://www.milliyet.com.tr/rss/rssnew/siyasetrss.xml', color: '#333333' }, // Koyu Gri
+        'Dünya': { url: 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml', color: '#ffa500' },
+        'Ekonomi': { url: 'https://www.milliyet.com.tr/rss/rssnew/ekonomi.xml', color: '#20B2AA' } // LightSeaGreen gibi bir renk
+    };
+    const DEFAULT_CATEGORY = 'Son Dakika';
+    let activeCategories = [DEFAULT_CATEGORY]; // Başlangıçta aktif olan kategori
+    let allNewsItems = []; // Tüm haberleri saklamak için dizi
 
-// Saat güncellemesi
-function updateClock() {
-    const now = new Date();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    document.getElementById('clock').textContent = `${hours}:${minutes}`;
-}
-setInterval(updateClock, 1000);
-updateClock();
+    // --- Fonksiyonlar ---
 
-// Kategori butonlarını dinle
-document.querySelectorAll('.category-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const category = button.dataset.category;
-        if (selectedCategories.includes(category)) {
-            selectedCategories = selectedCategories.filter(cat => cat !== category);
+    // Saat Güncelleme Fonksiyonu
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        clockElement.textContent = `${hours}:${minutes}`;
+    }
+
+    // Kategori Düğmelerini Oluşturma
+    function createCategoryButtons() {
+        categoryMenu.innerHTML = ''; // Önce temizle
+        Object.keys(CATEGORIES).forEach(categoryName => {
+            const button = document.createElement('button');
+            button.classList.add('category-btn');
+            button.dataset.category = categoryName;
+            button.textContent = categoryName.toUpperCase();
+            if (activeCategories.includes(categoryName)) {
+                button.classList.add('active');
+                // Aktif düğme stilini CSS'den alacak, ancak istersen buradan da renk atayabilirsin
+                // button.style.backgroundColor = CATEGORIES[categoryName].color;
+                // button.style.color = '#fff'; // Veya kontrast renge göre ayarla
+            }
+            button.addEventListener('click', handleCategoryClick);
+            categoryMenu.appendChild(button);
+        });
+    }
+
+    // Kategori Tıklama Olay Yöneticisi
+    function handleCategoryClick(event) {
+        const clickedCategory = event.target.dataset.category;
+
+        // Çoklu seçim mantığı: Tıklanan kategori zaten aktifse kaldır, değilse ekle
+        const index = activeCategories.indexOf(clickedCategory);
+        if (index > -1) {
+            // Eğer tek aktif kategori ise kaldırma
+            if (activeCategories.length > 1) {
+                activeCategories.splice(index, 1);
+            }
         } else {
-            selectedCategories.push(category);
+            activeCategories.push(clickedCategory);
         }
 
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            if (selectedCategories.includes(btn.dataset.category)) {
-                btn.classList.add('active');
+        // Eğer hiç kategori kalmadıysa varsayılana dön
+        if (activeCategories.length === 0) {
+            activeCategories.push(DEFAULT_CATEGORY);
+        }
+
+        // Düğmelerin görünümünü güncelle
+        updateCategoryButtons();
+        // Haber listesini filtrele
+        displayNews();
+    }
+
+    // Kategori Düğmelerinin Aktif/Pasif Durumunu Güncelle
+    function updateCategoryButtons() {
+        const buttons = categoryMenu.querySelectorAll('.category-btn');
+        buttons.forEach(button => {
+            if (activeCategories.includes(button.dataset.category)) {
+                button.classList.add('active');
             } else {
-                btn.classList.remove('active');
+                button.classList.remove('active');
             }
         });
-
-        fetchNews();
-    });
-});
-
-// RSS'ten haberleri çek
-async function fetchNews() {
-    const newsList = document.getElementById('news-list');
-    newsList.innerHTML = '<p>Yükleniyor...</p>';
-    allNews = [];
-    displayedNewsCount = 50;
-    lastRenderedNewsCount = 0;
-
-    if (selectedCategories.length === 0) {
-        newsList.innerHTML = '<p>Lütfen en az bir kategori seçin</p>';
-        return;
     }
 
-    const newsById = new Map();
+    // RSS Beslemesini Çekme ve Ayrıştırma
+    async function fetchAndParseRSS(categoryName) {
+        const feedInfo = CATEGORIES[categoryName];
+        if (!feedInfo) return []; // Kategori bulunamazsa boş dizi dön
 
-    try {
-        for (const category of selectedCategories) {
-            const url = categoryRssUrls[category];
-            if (!url) {
-                console.warn(`No RSS URL found for category: ${category}`);
-                continue;
-            }
+        const urlToFetch = PROXY_URL + encodeURIComponent(feedInfo.url);
+        console.log(`Fetching ${categoryName} from: ${feedInfo.url}`); // Debug için
 
-            const proxyUrl = `${corsProxy}${url}`;
-            console.log(`Fetching RSS for ${category}: ${proxyUrl}`);
-            let response;
-            try {
-                response = await fetch(proxyUrl, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                    },
-                    mode: 'cors',
-                });
-            } catch (error) {
-                console.error(`Error fetching RSS for ${category}: ${error.message}`);
-                continue;
-            }
-
+        try {
+            const response = await fetch(urlToFetch);
             if (!response.ok) {
-                console.error(`Failed to fetch RSS for ${category}: ${response.status} (${response.statusText})`);
-                continue;
+                console.error(`Proxy error for ${categoryName}: ${response.status} ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                console.error("Proxy error details:", errorData);
+                return []; // Hata durumunda boş dizi dön
             }
-
-            const text = await response.text();
+            const xmlText = await response.text();
             const parser = new DOMParser();
-            const xml = parser.parseFromString(text, 'text/xml');
-            const items = Array.from(xml.querySelectorAll('item')).slice(0, MAX_NEWS_PER_CATEGORY);
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-            console.log(`Fetched ${items.length} items for category ${category} (limited to ${MAX_NEWS_PER_CATEGORY})`);
-
-            items.forEach(item => {
-                let link = item.querySelector('link')?.textContent || '';
-                const guid = item.querySelector('guid')?.textContent || '';
-
-                if (!link && guid) {
-                    link = guid;
-                }
-
-                if (link && !link.startsWith('http')) {
-                    console.log(`Converting news ID to URL: ${link}`);
-                    const categorySlug = category.toLowerCase().replace('ı', 'i').replace('ş', 's').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o').replace('ç', 'c');
-                    const title = item.querySelector('title')?.textContent || 'haber';
-                    const titleSlug = title.toLowerCase()
-                        .replace(/[^a-z0-9\s-]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace('ı', 'i').replace('ş', 's').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o').replace('ç', 'c');
-                    link = `https://www.milliyet.com.tr/${categorySlug}/${titleSlug}-${link}`;
-                }
-
-                if (!link || !link.startsWith('http')) {
-                    console.warn(`Skipping item in ${category}: No valid link or guid found after conversion: ${link}`);
-                    return;
-                }
-
-                // Haber ID'sini çıkar (Milliyet ve Habertürk için farklı formatlar)
-                let newsId;
-                let sourcePrefix = '';
-                if (link.includes('milliyet.com.tr')) {
-                    const match = link.match(/(\d+)$/);
-                    newsId = match ? match[0] : link;
-                    sourcePrefix = 'milliyet-';
-                } else if (link.includes('haberturk.com')) {
-                    const match = link.match(/haber-(\d+)/);
-                    newsId = match ? match[1] : link;
-                    sourcePrefix = 'haberturk-';
-                } else {
-                    newsId = link;
-                    sourcePrefix = 'unknown-';
-                }
-
-                // Benzersiz bir anahtar oluştur (newsId ile birlikte title ve pubDate kullan)
-                const title = item.querySelector('title')?.textContent || 'Başlık Yok';
-                let pubDate = new Date();
-                const pubDateStr = item.querySelector('pubDate')?.textContent;
-                if (pubDateStr) {
-                    pubDate = new Date(pubDateStr);
-                    if (isNaN(pubDate)) {
-                        console.warn(`Invalid pubDate for item in ${category}: ${pubDateStr}`);
-                        pubDate = new Date();
-                    }
-                }
-                const uniqueKey = `${sourcePrefix}${newsId}-${title}-${pubDate.toISOString()}`; // Benzersiz anahtar
-
-                let imageUrl = '';
-                let description = item.querySelector('description')?.textContent || '';
-                if (description) {
-                    const div = document.createElement('div');
-                    div.innerHTML = description;
-                    const img = div.querySelector('img');
-                    if (img) imageUrl = img.src;
-                    description = div.textContent || '';
-                }
-                if (!imageUrl) {
-                    const enclosure = item.querySelector('enclosure');
-                    if (enclosure) imageUrl = enclosure.getAttribute('url');
-                }
-
-                const newsItem = {
-                    categories: [category],
-                    title,
-                    imageUrl,
-                    description,
-                    date: pubDate,
-                    link,
-                    source: url.includes('milliyet') ? 'milliyet' : 'haberturk',
-                };
-
-                console.log(`Adding news item to ${category}: ${title}, Link: ${link}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
-
-                if (!newsById.has(uniqueKey)) {
-                    newsById.set(uniqueKey, newsItem);
-                    allNews.push(newsItem);
-                } else {
-                    const existing = newsById.get(uniqueKey);
-                    if (!existing.categories.includes(category)) {
-                        existing.categories.push(category);
-                    }
-                }
-            });
-        }
-
-        console.log(`Total news items in allNews: ${allNews.length}`);
-        if (allNews.length > 0) {
-            console.log(`First news item: ${JSON.stringify(allNews[0])}`);
-        }
-
-        allNews.sort((a, b) => b.date - a.date);
-
-        console.log('First few news after sorting:');
-        allNews.slice(0, 5).forEach((news, index) => {
-            console.log(`News ${index + 1}: ${news.title}, Date: ${news.date}, Categories: ${news.categories}, Link: ${news.link}, Source: ${news.source}`);
-        });
-
-        renderNews();
-    } catch (error) {
-        console.error('Error fetching news:', error);
-        newsList.innerHTML = `<p>Haberler yüklenemedi: ${error.message}</p>`;
-    }
-}
-
-// Haberleri render et
-function renderNews() {
-    const newsList = document.getElementById('news-list');
-
-    if (lastRenderedNewsCount === 0) {
-        newsList.innerHTML = '';
-    }
-
-    console.log(`allNews length before rendering: ${allNews.length}`);
-
-    const newsToShow = allNews.slice(lastRenderedNewsCount, displayedNewsCount);
-    console.log(`News to show: ${newsToShow.length} items`);
-
-    if (newsToShow.length === 0 && lastRenderedNewsCount === 0) {
-        newsList.innerHTML = '<p>Seçili kategoriler için haber bulunamadı</p>';
-        return;
-    }
-
-    newsToShow.forEach(news => {
-        const categories = news.categories;
-        const primaryCategory = categories[0];
-        const color = categoryColors[primaryCategory] || '#808080';
-        const formattedDate = news.date.toLocaleString('tr-TR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-
-        const newsItem = document.createElement('div');
-        newsItem.className = 'news-item';
-        newsItem.innerHTML = `
-            <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
-            <div class="news-title" style="background-color: ${color};">${news.title}</div>
-            <div class="news-date" style="background-color: ${color};">${formattedDate}</div>
-        `;
-        newsItem.addEventListener('click', () => showNewsDetail(news));
-        newsList.appendChild(newsItem);
-    });
-
-    lastRenderedNewsCount = displayedNewsCount;
-
-    console.log(`Total news: ${allNews.length}, Displayed news: ${displayedNewsCount}, Last rendered: ${lastRenderedNewsCount}`);
-}
-
-// Haber detaylarını göster
-function showNewsDetail(news) {
-    const newsDetail = document.getElementById('news-detail');
-    let url = news.link;
-    console.log(`Original URL: ${url}, Source: ${news.source}`);
-
-    if (!url || !url.startsWith('http')) {
-        console.error(`Invalid URL: ${url}`);
-        newsDetail.innerHTML = `<p>Geçersiz URL: ${url}</p>`;
-        return;
-    }
-
-    // Doğrudan haber URL'sini kullan
-    const displayUrl = url;
-    console.log(`Loading URL: ${displayUrl}`);
-
-    newsDetail.innerHTML = `
-        <iframe src="${displayUrl}" frameborder="0" style="width: 100%; height: 100%;"
-            onload="console.log('Iframe loaded successfully: ${displayUrl}')"
-            onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde gösterilemiyor: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
-        </iframe>
-    `;
-}
-
-// Infinite Scroll
-document.getElementById('news-list').addEventListener('scroll', function () {
-    const newsList = this;
-    const scrollPosition = newsList.scrollTop + newsList.clientHeight;
-    const scrollHeight = newsList.scrollHeight;
-
-    console.log(`Scroll Position: ${scrollPosition}, Client Height: ${newsList.clientHeight}, Scroll Height: ${scrollHeight}`);
-
-    if (scrollPosition >= scrollHeight * 0.9) {
-        if (!isLoadingMore && displayedNewsCount < allNews.length) {
-            console.log('Loading more news...');
-            isLoadingMore = true;
-            displayedNewsCount += 50;
-            renderNews();
-            isLoadingMore = false;
-        } else {
-            console.log('No more news to load or already loading.');
-            console.log(`Displayed: ${displayedNewsCount}, Total: ${allNews.length}`);
-            if (displayedNewsCount >= allNews.length && allNews.length > 0) {
-                const endMessage = document.createElement('p');
-                endMessage.textContent = 'Tüm haberler yüklendi.';
-                endMessage.style.textAlign = 'center';
-                endMessage.style.padding = '10px';
-                if (!newsList.querySelector('p:last-child') || newsList.querySelector('p:last-child').textContent !== 'Tüm haberler yüklendi.') {
-                    newsList.appendChild(endMessage);
-                }
+            // Hata kontrolü (XML parse hatası)
+            const parseError = xmlDoc.querySelector("parsererror");
+            if (parseError) {
+                console.error(`XML Parse Error for ${categoryName}:`, parseError.textContent);
+                return [];
             }
+
+            const items = xmlDoc.querySelectorAll("item");
+            const news = [];
+            items.forEach(item => {
+                const title = item.querySelector("title")?.textContent || 'Başlık Yok';
+
+                // --- Geliştirilmiş Link Çekme Mantığı ---
+                let link = item.querySelector("link")?.textContent?.trim(); // Önce <link> etiketini dene ve boşlukları temizle
+
+                // Eğer <link> boş veya bulunamadıysa, <guid> etiketini kontrol et
+                if (!link || link === '#') {
+                    const guidElement = item.querySelector("guid");
+                    if (guidElement) {
+                        const guidText = guidElement.textContent?.trim();
+                        const isPermaLink = guidElement.getAttribute("isPermaLink");
+                        // Eğer guid isPermaLink="true" ise veya false değilse VE http ile başlıyorsa, onu link olarak kullan
+                        if (guidText && (isPermaLink === "true" || (isPermaLink !== "false" && guidText.startsWith('http')))) {
+                            link = guidText;
+                            console.log(`Used guid as link: ${link}`); // Debug için log
+                        }
+                    }
+                }
+
+                // Hala geçerli bir link bulunamadıysa '#' ata
+                link = (link && link.startsWith('http')) ? link : '#';
+                // --- Bitiş: Geliştirilmiş Link Çekme Mantığı ---
+
+                const pubDateStr = item.querySelector("pubDate")?.textContent;
+                const description = item.querySelector("description")?.textContent || '';
+                // Resmi description içinden veya enclosure'dan almaya çalışalım
+                let imageUrl = extractImageUrl(description) || item.querySelector("enclosure")?.getAttribute("url") || item.querySelector("media\\:content, content")?.getAttribute("url") || null;
+
+                // Tarihi formatla
+                const pubDate = pubDateStr ? new Date(pubDateStr) : new Date();
+                const formattedDate = formatDate(pubDate);
+
+                news.push({
+                    title,
+                    link,
+                    pubDate: formattedDate, // Formatlanmış tarih
+                    rawDate: pubDate, // Sıralama için ham tarih
+                    description, // Ham açıklama (belki ileride kullanılır)
+                    imageUrl,
+                    category: categoryName,
+                    color: feedInfo.color // Kategori rengini ekle
+                });
+            });
+            console.log(`Fetched ${news.length} items for ${categoryName}`); // Debug
+            return news;
+        } catch (error) {
+            console.error(`Error fetching or parsing RSS for ${categoryName}:`, error);
+            return []; // Hata durumunda boş dizi dön
         }
     }
-});
 
-// İlk yükleme
-fetchNews();
+    // Description içinden resim URL'si çıkarma (basit regex)
+    function extractImageUrl(description) {
+        if (!description) return null;
+        const imgTagMatch = description.match(/<img[^>]+src="([^">]+)"/);
+        return imgTagMatch ? imgTagMatch[1] : null;
+    }
+
+    // Tarihi DD.MM.YYYY - HH:MM formatına çevirme
+    function formatDate(date) {
+        if (!(date instanceof Date) || isNaN(date)) {
+            return "Tarih Yok";
+        }
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Aylar 0'dan başlar
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}.${month}.${year} - ${hours}:${minutes}`;
+    }
+
+    // Tüm Haberleri Getirme
+    async function fetchAllNews() {
+        loadingMessage.style.display = 'block'; // Yükleniyor mesajını göster
+        newsList.innerHTML = ''; // Listeyi temizle
+        allNewsItems = []; // Önceki haberleri temizle
+
+        const fetchPromises = Object.keys(CATEGORIES).map(categoryName => fetchAndParseRSS(categoryName));
+        const results = await Promise.all(fetchPromises);
+
+        // Sonuçları tek bir diziye birleştir
+        results.forEach(newsArray => {
+            allNewsItems = allNewsItems.concat(newsArray);
+        });
+
+        // Haberleri tarihe göre en yeniden eskiye sırala
+        allNewsItems.sort((a, b) => b.rawDate - a.rawDate);
+
+        loadingMessage.style.display = 'none'; // Yükleniyor mesajını gizle
+        displayNews(); // Haberleri göster
+    }
+
+    // Haberleri Filtreleyip Gösterme
+    function displayNews() {
+        newsList.innerHTML = ''; // Listeyi temizle
+
+        const filteredNews = allNewsItems.filter(item => activeCategories.includes(item.category));
+
+        if (filteredNews.length === 0) {
+            newsList.innerHTML = '<p class="loading-message">Seçili kategorilerde haber bulunamadı.</p>';
+            return;
+        }
+
+        filteredNews.forEach(item => {
+            const newsItemElement = document.createElement('article');
+            newsItemElement.classList.add('news-item');
+            newsItemElement.dataset.link = item.link; // Tıklama için linki sakla
+
+            // Resim Alanı
+            const imageContainer = document.createElement('div');
+            imageContainer.classList.add('news-image-container');
+            if (item.imageUrl) {
+                const img = document.createElement('img');
+                img.src = item.imageUrl;
+                img.alt = item.title;
+                img.classList.add('news-image');
+                img.onerror = () => { // Resim yüklenemezse placeholder göster
+                    imageContainer.innerHTML = '<span style="font-size:12px; color:#999;">Resim Yok</span>';
+                };
+                imageContainer.appendChild(img);
+            } else {
+                imageContainer.innerHTML = '<span style="font-size:12px; color:#999;">Resim Yok</span>'; // Resim yoksa
+            }
+
+            // İçerik Alanı (Başlık ve Tarih)
+            const contentElement = document.createElement('div');
+            contentElement.classList.add('news-content');
+            contentElement.style.backgroundColor = item.color; // Kategori rengini arka plan yap
+
+            // Başlık
+            const titleElement = document.createElement('h3');
+            titleElement.classList.add('news-title');
+            titleElement.textContent = item.title;
+            // Başlık rengini arka plana göre ayarla (basit kontrast)
+            titleElement.style.color = isColorDark(item.color) ? '#fff' : '#333';
+
+            // Tarih
+            const dateElement = document.createElement('span');
+            dateElement.classList.add('news-date');
+            dateElement.textContent = item.pubDate;
+            // Tarih arka planını biraz daha koyu yapalım
+            dateElement.style.backgroundColor = darkenColor(item.color, 20);
+            dateElement.style.color = '#fff'; // Tarih rengi genellikle beyaz
+
+            contentElement.appendChild(titleElement);
+            contentElement.appendChild(dateElement);
+
+            newsItemElement.appendChild(imageContainer);
+            newsItemElement.appendChild(contentElement);
+
+            // Tıklama Olayı
+            newsItemElement.addEventListener('click', () => {
+                const newsUrl = item.link;
+                console.log(`Clicked news item. URL: ${newsUrl}`); // Debug
+
+                // iframe'in src'sini güncelle
+                // Milliyet linkleri için proxy kullan, diğerleri için doğrudan link
+                if (newsUrl && newsUrl.startsWith('https://www.milliyet.com.tr')) {
+                    const proxyUrl = `/api/proxy?url=${encodeURIComponent(newsUrl)}`;
+                    console.log(`Using proxy for Milliyet: ${proxyUrl}`); // Debug
+                    newsDetailFrame.src = proxyUrl;
+                } else if (newsUrl) {
+                    console.log(`Using direct link for: ${newsUrl}`); // Debug
+                    newsDetailFrame.src = newsUrl;
+                } else {
+                    console.log("No valid URL found for this item.");
+                    newsDetailFrame.src = 'about:blank'; // Geçerli URL yoksa boş sayfa
+                }
+
+                // İsteğe bağlı: Tıklanan öğeyi vurgula
+                document.querySelectorAll('.news-item.selected').forEach(el => el.classList.remove('selected'));
+                newsItemElement.classList.add('selected');
+            });
+
+            newsList.appendChild(newsItemElement);
+        });
+    }
+
+    // Renk koyu mu açık mı kontrolü (basit)
+    function isColorDark(hexColor) {
+        if (!hexColor) return false;
+        const color = hexColor.substring(1); // # işaretini kaldır
+        const r = parseInt(color.substring(0, 2), 16);
+        const g = parseInt(color.substring(2, 4), 16);
+        const b = parseInt(color.substring(4, 6), 16);
+        // Parlaklık formülü (basit)
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128; // Eşik değeri (ayarlanabilir)
+    }
+
+    // Rengi koyulaştırma fonksiyonu
+    function darkenColor(hexColor, percent) {
+        if (!hexColor) return '#555'; // Varsayılan koyu renk
+        let color = hexColor.substring(1);
+        let num = parseInt(color, 16),
+            amt = Math.round(2.55 * percent),
+            R = (num >> 16) - amt,
+            G = (num >> 8 & 0x00FF) - amt,
+            B = (num & 0x0000FF) - amt;
+        R = R < 0 ? 0 : R;
+        G = G < 0 ? 0 : G;
+        B = B < 0 ? 0 : B;
+        return "#" + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+    }
+
+
+    // --- Başlangıç ---
+    function init() {
+        updateClock(); // Saati ilk kez ayarla
+        setInterval(updateClock, 60000); // Her dakika güncelle
+        createCategoryButtons(); // Kategori düğmelerini oluştur
+        fetchAllNews(); // Tüm haberleri çek ve göster
+    }
+
+    init(); // Uygulamayı başlat
+});
