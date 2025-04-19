@@ -34,7 +34,7 @@ header h1 {
 }
 
 .category {
-  padding: 0.3rem 0.8rem;
+  padding: 0.6rem 1rem;
   border-radius: 1rem;
   font-size: 0.9rem;
   font-weight: 500;
@@ -61,7 +61,6 @@ header h1 {
 }
 
 .news-item {
-  background-color: #1e1e1e;
   border-radius: 0.75rem;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
@@ -88,7 +87,8 @@ header h1 {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: #2a2a2a;
+  background-color: inherit;
+  color: white;
 }
 
 .news-title {
@@ -100,10 +100,10 @@ header h1 {
 
 .news-time {
   font-size: 0.75rem;
-  color: #cccccc;
+  color: white;
   margin-top: 0.5rem;
   padding: 0.4rem 0.6rem;
-  background-color: #333;
+  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 0.5rem;
   align-self: flex-start;
 }
@@ -138,16 +138,58 @@ header h1 {
 }
 
 /* Kategori renkleri */
-.category[data-color] {
-  background-color: attr(data-color);
+.category[data-category="Gündem"] {
+  background-color: #ff4d4f;
+}
+.news-item[data-category="Gündem"] .news-content {
+  background-color: #ff4d4f;
 }
 
-/* Örnek kategori renkleri */
-.category[data-category="Gündem"] { background-color: #ff4d4f; }
-.category[data-category="Ekonomi"] { background-color: #1890ff; }
-.category[data-category="Spor"] { background-color: #52c41a; }
-.category[data-category="Dünya"] { background-color: #faad14; }
-.category[data-category="Magazin"] { background-color: #eb2f96; }
-.category[data-category="Teknoloji"] { background-color: #722ed1; }
-.category[data-category="Sağlık"] { background-color: #13c2c2; }
-.category[data-category="Kültür"] { background-color: #a0d911; }
+.category[data-category="Ekonomi"] {
+  background-color: #1890ff;
+}
+.news-item[data-category="Ekonomi"] .news-content {
+  background-color: #1890ff;
+}
+
+.category[data-category="Spor"] {
+  background-color: #52c41a;
+}
+.news-item[data-category="Spor"] .news-content {
+  background-color: #52c41a;
+}
+
+.category[data-category="Dünya"] {
+  background-color: #faad14;
+}
+.news-item[data-category="Dünya"] .news-content {
+  background-color: #faad14;
+}
+
+.category[data-category="Magazin"] {
+  background-color: #eb2f96;
+}
+.news-item[data-category="Magazin"] .news-content {
+  background-color: #eb2f96;
+}
+
+.category[data-category="Teknoloji"] {
+  background-color: #722ed1;
+}
+.news-item[data-category="Teknoloji"] .news-content {
+  background-color: #722ed1;
+}
+
+.category[data-category="Sağlık"] {
+  background-color: #13c2c2;
+}
+.news-item[data-category="Sağlık"] .news-content {
+  background-color: #13c2c2;
+}
+
+.category[data-category="Kültür"] {
+  background-color: #a0d911;
+}
+.news-item[data-category="Kültür"] .news-content {
+  background-color: #a0d911;
+}
