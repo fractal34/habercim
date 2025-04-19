@@ -108,6 +108,7 @@ body {
 .category-btn.active[data-category="Gündem"] { background-color: #0000ff; color: white; }
 .category-btn.active[data-category="Politika"] { background-color: #333; color: white; }
 .category-btn.active[data-category="Otomobil"] { background-color: #00008B; color: white; }
+.category-btn.active[data-category="Teknoloji"] { background-color: #00BFFF; color: white; }
 
 .main-content {
     display: flex;

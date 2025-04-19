@@ -5,7 +5,8 @@ const categoryRssUrls = {
     'Magazin': 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml',
     'Dünya': 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml',
     'Gündem': 'https://www.milliyet.com.tr/rss/rssnew/gundemrss.xml',
-    'Otomobil': 'https://www.milliyet.com.tr/rss/rssnew/otomobilrss.xml', // Otomobil RSS URL’si
+    'Otomobil': 'https://tr.motor1.com/rss/articles/all/', // Güncellendi
+    'Teknoloji': 'https://onedio.com/Publisher/publisher-teknoloji.rss', // Yeni eklendi
 };
 
 const categoryColors = {
@@ -14,7 +15,8 @@ const categoryColors = {
     'Magazin': '#800080',
     'Dünya': '#ffa500',
     'Gündem': '#0000ff',
-    'Otomobil': '#00008B', // Otomobil için koyu mavi renk
+    'Otomobil': '#00008B',
+    'Teknoloji': '#00BFFF', // Yeni renk: Derin Gökyüzü Mavisi
 };
 
 // CORS proxy URL'si
