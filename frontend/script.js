@@ -5,7 +5,7 @@ const categoryRssUrls = {
     'Magazin': 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml',
     'Dünya': 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml',
     'Gündem': 'https://www.milliyet.com.tr/rss/rssnew/gundemrss.xml',
-    'Otomobil': 'https://tr.motor1.com/rss/articles/all/', // Güncellendi
+    'Otomobil': 'https://www.otohaber.com.tr/rss', // Güncellendi
     'Teknoloji': 'https://onedio.com/Publisher/publisher-teknoloji.rss', // Yeni eklendi
 };
 
