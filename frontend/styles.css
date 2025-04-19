@@ -68,6 +68,16 @@ body {
     border-bottom: 1px solid #d13700;
 }
 
+.category-source-menu {
+    display: flex;
+    background-color: #15110f;
+    padding: 8px 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-top: 1px solid #ff6a36;
+    border-bottom: 1px solid #d13700;
+}
+
 .category-btn {
     background-color: #333;
     border: none;
