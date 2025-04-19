@@ -254,10 +254,11 @@ function renderNews() {
 
         const newsItem = document.createElement('div');
         newsItem.className = 'news-item';
+        newsItem.style.backgroundColor = color; // news-item'ın tüm background'u kategori rengine göre ayarlandı
         newsItem.innerHTML = `
             <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
             <div class="news-title" style="background-color: ${color};">${news.title}</div>
-            <div class="news-date" style="background-color: ${color};">${formattedDate}</div>
+            <div class="news-date">${formattedDate}</div> <!-- Koyuluk katmanı CSS'te zaten var -->
         `;
         newsItem.addEventListener('click', () => showNewsDetail(news));
         newsList.appendChild(newsItem);
