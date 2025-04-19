@@ -1,8 +1,25 @@
 {
   "rewrites": [
     {
+      "source": "/api/proxy",
+      "destination": "/backend/api/proxy.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/frontend/index.html"
     }
-  ]
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
