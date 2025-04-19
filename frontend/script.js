@@ -149,12 +149,16 @@ async function fetchNews() {
                     const match = link.match(/haber-(\d+)/);
                     newsId = match ? match[1] : link;
                     sourcePrefix = 'haberturk-';
+                } else if (link.includes('onedio.com')) {
+                    const match = link.match(/(\d+)$/);
+                    newsId = match ? match[0] : link;
+                    sourcePrefix = 'onedio-';
                 } else {
                     newsId = link;
                     sourcePrefix = 'unknown-';
                 }
 
-                // Benzersiz bir anahtar oluştur (newsId ile birlikte title ve pubDate kullan)
+                // Benzersiz bir anahtar oluştur
                 const title = item.querySelector('title')?.textContent || 'Başlık Yok';
                 let pubDate = new Date();
                 const pubDateStr = item.querySelector('pubDate')?.textContent;
@@ -173,12 +177,26 @@ async function fetchNews() {
                     const div = document.createElement('div');
                     div.innerHTML = description;
                     const img = div.querySelector('img');
-                    if (img) imageUrl = img.src;
+                    if (img) {
+                        // Önce src özniteliğini kontrol et
+                        imageUrl = img.getAttribute('src') || '';
+                        // Eğer src boşsa, data-src veya başka bir özniteliği kontrol et
+                        if (!imageUrl) {
+                            imageUrl = img.getAttribute('data-src') || '';
+                        }
+                    }
                     description = div.textContent || '';
                 }
                 if (!imageUrl) {
                     const enclosure = item.querySelector('enclosure');
-                    if (enclosure) imageUrl = enclosure.getAttribute('url');
+                    if (enclosure) imageUrl = enclosure.getAttribute('url') || '';
+                }
+                if (!imageUrl) {
+                    // Eğer hâlâ resim bulunamadıysa, Onedio için özel bir kontrol yap
+                    if (link.includes('onedio.com')) {
+                        console.log(`Onedio haber için resim bulunamadı, link: ${link}`);
+                        imageUrl = 'https://via.placeholder.com/150'; // Geçici olarak placeholder
+                    }
                 }
 
                 const newsItem = {
@@ -188,10 +206,10 @@ async function fetchNews() {
                     description,
                     date: pubDate,
                     link,
-                    source: url.includes('milliyet') ? 'milliyet' : 'haberturk',
+                    source: link.includes('milliyet') ? 'milliyet' : link.includes('haberturk') ? 'haberturk' : link.includes('onedio') ? 'onedio' : 'unknown',
                 };
 
-                console.log(`Adding news item to ${category}: ${title}, Link: ${link}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
+                console.log(`Adding news item to ${category}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
 
                 if (!newsById.has(uniqueKey)) {
                     newsById.set(uniqueKey, newsItem);
