@@ -176,7 +176,7 @@ body {
     padding: 3px 5px;
     border-radius: 4px;
     margin: 8px;
-    background-color: inherit; /* JS ile değiştirilecek */
+    background-color: #999; /* JS ile değiştirilecek */
 }
 
 .news-detail {
