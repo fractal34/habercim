@@ -1,12 +1,30 @@
-// Kategoriler ve RSS URL'leri
+// Kategoriler ve RSS URL'leri (Her kategoriye birden fazla kaynak)
 const categoryRssUrls = {
-    'Son Dakika': 'https://www.milliyet.com.tr/rss/rssnew/sondakikarss.xml',
-    'Spor': 'http://www.haberturk.com/rss/spor.xml',
-    'Magazin': 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml',
-    'Dünya': 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml',
-    'Gündem': 'https://www.milliyet.com.tr/rss/rssnew/gundem.xml',
-    'Otomobil': 'https://www.otoaktuel.com.tr/rss',
-    'Teknoloji': 'https://onedio.com/Publisher/publisher-teknoloji.rss',
+    'Son Dakika': {
+        'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/sondakikarss.xml',
+        'Sabah': 'https://www.sabah.com.tr/rss/sondakika.xml',
+        'Mynet': 'http://www.mynet.com/haber/rss/sondakika',
+    },
+    'Spor': {
+        'Habertürk': 'http://www.haberturk.com/rss/spor.xml',
+        'Hürriyet': 'http://www.hurriyet.com.tr/rss/spor',
+        'NTV': 'https://www.ntv.com.tr/spor.rss',
+    },
+    'Magazin': {
+        'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml',
+    },
+    'Dünya': {
+        'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml',
+    },
+    'Gündem': {
+        'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/gundem.xml',
+    },
+    'Otomobil': {
+        'Otoaktuel': 'https://www.otoaktuel.com.tr/rss',
+    },
+    'Teknoloji': {
+        'Onedio': 'https://onedio.com/Publisher/publisher-teknoloji.rss',
+    },
 };
 
 const categoryColors = {
@@ -27,6 +45,15 @@ const MAX_NEWS_PER_CATEGORY = 50;
 
 // Seçili kategoriler (varsayılan olarak Son Dakika seçili)
 let selectedCategories = ['Son Dakika'];
+
+// Seçili kaynaklar (varsayılan olarak her kategorideki tüm kaynaklar seçili)
+let selectedSources = {};
+
+// Her kategorideki kaynakları varsayılan olarak seçili yap
+Object.keys(categoryRssUrls).forEach(category => {
+    selectedSources[category] = Object.keys(categoryRssUrls[category]);
+});
+
 let allNews = [];
 let displayedNewsCount = 50;
 let isLoadingMore = false;
@@ -41,6 +68,41 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+// Kaynak seçim barını güncelle
+function updateSourceBar() {
+    const sourceBar = document.getElementById('source-bar');
+    sourceBar.innerHTML = '';
+
+    selectedCategories.forEach(category => {
+        const sources = categoryRssUrls[category];
+        if (!sources) return;
+
+        Object.keys(sources).forEach(source => {
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = selectedSources[category].includes(source);
+            checkbox.dataset.category = category;
+            checkbox.dataset.source = source;
+
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    if (!selectedSources[category].includes(source)) {
+                        selectedSources[category].push(source);
+                    }
+                } else {
+                    selectedSources[category] = selectedSources[category].filter(s => s !== source);
+                }
+                fetchNews();
+            });
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(source));
+            sourceBar.appendChild(label);
+        });
+    });
+}
 
 // Kategori butonlarını dinle
 document.querySelectorAll('.category-btn').forEach(button => {
@@ -60,6 +122,7 @@ document.querySelectorAll('.category-btn').forEach(button => {
             }
         });
 
+        updateSourceBar();
         fetchNews();
     });
 });
@@ -81,153 +144,190 @@ async function fetchNews() {
 
     try {
         for (const category of selectedCategories) {
-            const url = categoryRssUrls[category];
-            if (!url) {
-                console.warn(`No RSS URL found for category: ${category}`);
+            const sources = categoryRssUrls[category];
+            if (!sources) {
+                console.warn(`No sources found for category: ${category}`);
                 continue;
             }
 
-            const proxyUrl = `${corsProxy}${url}`;
-            console.log(`Fetching RSS for ${category}: ${proxyUrl}`);
-            let response;
-            try {
-                response = await fetch(proxyUrl, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
-                    },
-                    mode: 'cors',
-                });
-            } catch (error) {
-                console.error(`Error fetching RSS for ${category}: ${error.message}`);
+            const selectedCategorySources = selectedSources[category];
+            if (!selectedCategorySources || selectedCategorySources.length === 0) {
+                console.warn(`No selected sources for category: ${category}`);
                 continue;
             }
 
-            if (!response.ok) {
-                console.error(`Failed to fetch RSS for ${category}: ${response.status} (${response.statusText})`);
-                continue;
-            }
-
-            const text = await response.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, 'text/xml');
-            const items = Array.from(xml.querySelectorAll('item')).slice(0, MAX_NEWS_PER_CATEGORY);
-
-            console.log(`Fetched ${items.length} items for category ${category} (limited to ${MAX_NEWS_PER_CATEGORY})`);
-
-            items.forEach(item => {
-                let link = item.querySelector('link')?.textContent || '';
-                const guid = item.querySelector('guid')?.textContent || '';
-
-                if (!link && guid) {
-                    link = guid;
+            for (const source of selectedCategorySources) {
+                const url = sources[source];
+                if (!url) {
+                    console.warn(`No RSS URL found for source ${source} in category: ${category}`);
+                    continue;
                 }
 
-                if (link && !link.startsWith('http')) {
-                    console.log(`Converting news ID to URL: ${link}`);
-                    const categorySlug = category.toLowerCase().replace('ı', 'i').replace('ş', 's').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o').replace('ç', 'c');
-                    const title = item.querySelector('title')?.textContent || 'haber';
-                    const titleSlug = title.toLowerCase()
-                        .replace(/[^a-z0-9\s-]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace('ı', 'i').replace('ş', 's').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o').replace('ç', 'c');
-                    link = `https://www.milliyet.com.tr/${categorySlug}/${titleSlug}-${link}`;
+                const proxyUrl = `${corsProxy}${url}`;
+                console.log(`Fetching RSS for ${category} from ${source}: ${proxyUrl}`);
+                let response;
+                try {
+                    response = await fetch(proxyUrl, {
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+                        },
+                        mode: 'cors',
+                    });
+                } catch (error) {
+                    console.error(`Error fetching RSS for ${category} from ${source}: ${error.message}`);
+                    continue;
                 }
 
-                if (!link || !link.startsWith('http')) {
-                    console.warn(`Skipping item in ${category}: No valid link or guid found after conversion: ${link}`);
-                    return;
+                if (!response.ok) {
+                    console.error(`Failed to fetch RSS for ${category} from ${source}: ${response.status} (${response.statusText})`);
+                    continue;
                 }
 
-                // Haber ID'sini çıkar
-                let newsId;
-                let sourcePrefix = '';
-                if (link.includes('milliyet.com.tr')) {
-                    const match = link.match(/(\d+)$/);
-                    newsId = match ? match[0] : link;
-                    sourcePrefix = 'milliyet-';
-                } else if (link.includes('haberturk.com')) {
-                    const match = link.match(/haber-(\d+)/);
-                    newsId = match ? match[1] : link;
-                    sourcePrefix = 'haberturk-';
-                } else if (link.includes('onedio.com')) {
-                    const match = link.match(/(\d+)$/);
-                    newsId = match ? match[0] : link;
-                    sourcePrefix = 'onedio-';
-                } else if (link.includes('otoaktuel.com.tr')) {
-                    const match = link.match(/(\d+)$/);
-                    newsId = match ? match[0] : link;
-                    sourcePrefix = 'otoaktuel-';
-                } else {
-                    newsId = link;
-                    sourcePrefix = 'unknown-';
-                }
+                const text = await response.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(text, 'text/xml');
+                const items = Array.from(xml.querySelectorAll('item')).slice(0, MAX_NEWS_PER_CATEGORY);
 
-                // Benzersiz bir anahtar oluştur
-                const title = item.querySelector('title')?.textContent || 'Başlık Yok';
-                let pubDate = new Date();
-                const pubDateStr = item.querySelector('pubDate')?.textContent;
-                if (pubDateStr) {
-                    pubDate = new Date(pubDateStr);
-                    if (isNaN(pubDate)) {
-                        console.warn(`Invalid pubDate for item in ${category}: ${pubDateStr}`);
-                        pubDate = new Date();
+                console.log(`Fetched ${items.length} items for category ${category} from ${source} (limited to ${MAX_NEWS_PER_CATEGORY})`);
+
+                items.forEach(item => {
+                    let link = item.querySelector('link')?.textContent || '';
+                    const guid = item.querySelector('guid')?.textContent || '';
+
+                    if (!link && guid) {
+                        link = guid;
                     }
-                }
-                const uniqueKey = `${sourcePrefix}${newsId}-${title}-${pubDate.toISOString()}`; // Benzersiz anahtar
 
-                let imageUrl = '';
-                let description = item.querySelector('description')?.textContent || '';
-                if (description) {
-                    const div = document.createElement('div');
-                    div.innerHTML = description;
-                    const img = div.querySelector('img');
-                    if (img) {
-                        imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
+                    if (link && !link.startsWith('http')) {
+                        console.log(`Converting news ID to URL: ${link}`);
+                        const categorySlug = category.toLowerCase().replace('ı', 'i').replace('ş', 's').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o').replace('ç', 'c');
+                        const title = item.querySelector('title')?.textContent || 'haber';
+                        const titleSlug = title.toLowerCase()
+                            .replace(/[^a-z0-9\s-]/g, '')
+                            .replace(/\s+/g, '-')
+                            .replace('ı', 'i').replace('ş', 's').replace('ğ', 'g').replace('ü', 'u').replace('ö', 'o').replace('ç', 'c');
+                        link = `https://www.milliyet.com.tr/${categorySlug}/${titleSlug}-${link}`;
                     }
-                    description = div.textContent || '';
-                }
-                if (!imageUrl) {
-                    const enclosure = item.querySelector('enclosure');
-                    if (enclosure) imageUrl = enclosure.getAttribute('url') || '';
-                }
-                if (!imageUrl) {
-                    const mediaContents = item.getElementsByTagName('media:content');
-                    for (let i = 0; i < mediaContents.length; i++) {
-                        const mediaContent = mediaContents[i];
-                        const type = mediaContent.getAttribute('type') || '';
-                        if (type.startsWith('image/')) { // image/jpg, image/png gibi türleri kapsar
-                            imageUrl = mediaContent.getAttribute('url') || '';
-                            break;
+
+                    if (!link || !link.startsWith('http')) {
+                        console.warn(`Skipping item in ${category} from ${source}: No valid link or guid found after conversion: ${link}`);
+                        return;
+                    }
+
+                    // Haber ID'sini çıkar
+                    let newsId;
+                    let sourcePrefix = '';
+                    if (link.includes('milliyet.com.tr')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'milliyet-';
+                    } else if (link.includes('haberturk.com')) {
+                        const match = link.match(/haber-(\d+)/);
+                        newsId = match ? match[1] : link;
+                        sourcePrefix = 'haberturk-';
+                    } else if (link.includes('onedio.com')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'onedio-';
+                    } else if (link.includes('otoaktuel.com.tr')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'otoaktuel-';
+                    } else if (link.includes('sabah.com.tr')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'sabah-';
+                    } else if (link.includes('mynet.com')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'mynet-';
+                    } else if (link.includes('hurriyet.com.tr')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'hurriyet-';
+                    } else if (link.includes('ntv.com.tr')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'ntv-';
+                    } else {
+                        newsId = link;
+                        sourcePrefix = 'unknown-';
+                    }
+
+                    // Benzersiz bir anahtar oluştur
+                    const title = item.querySelector('title')?.textContent || 'Başlık Yok';
+                    let pubDate = new Date();
+                    const pubDateStr = item.querySelector('pubDate')?.textContent;
+                    if (pubDateStr) {
+                        pubDate = new Date(pubDateStr);
+                        if (isNaN(pubDate)) {
+                            console.warn(`Invalid pubDate for item in ${category} from ${source}: ${pubDateStr}`);
+                            pubDate = new Date();
                         }
                     }
-                }
-                if (!imageUrl && link.includes('onedio.com')) {
-                    console.log(`Onedio haber için resim bulunamadı, link: ${link}`);
-                    imageUrl = 'https://via.placeholder.com/150'; // Hâlâ bulunamazsa placeholder
-                }
+                    const uniqueKey = `${sourcePrefix}${newsId}-${title}-${pubDate.toISOString()}`; // Benzersiz anahtar
 
-                const newsItem = {
-                    categories: [category],
-                    title,
-                    imageUrl,
-                    description,
-                    date: pubDate,
-                    link,
-                    source: link.includes('milliyet') ? 'milliyet' : link.includes('haberturk') ? 'haberturk' : link.includes('onedio') ? 'onedio' : link.includes('otoaktuel') ? 'otoaktuel' : 'unknown',
-                };
-
-                console.log(`Adding news item to ${category}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
-
-                if (!newsById.has(uniqueKey)) {
-                    newsById.set(uniqueKey, newsItem);
-                    allNews.push(newsItem);
-                } else {
-                    const existing = newsById.get(uniqueKey);
-                    if (!existing.categories.includes(category)) {
-                        existing.categories.push(category);
+                    let imageUrl = '';
+                    let description = item.querySelector('description')?.textContent || '';
+                    if (description) {
+                        const div = document.createElement('div');
+                        div.innerHTML = description;
+                        const img = div.querySelector('img');
+                        if (img) {
+                            imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
+                        }
+                        description = div.textContent || '';
                     }
-                }
-            });
+                    if (!imageUrl) {
+                        const enclosure = item.querySelector('enclosure');
+                        if (enclosure) imageUrl = enclosure.getAttribute('url') || '';
+                    }
+                    if (!imageUrl) {
+                        const mediaContents = item.getElementsByTagName('media:content');
+                        for (let i = 0; i < mediaContents.length; i++) {
+                            const mediaContent = mediaContents[i];
+                            const type = mediaContent.getAttribute('type') || '';
+                            if (type.startsWith('image/')) {
+                                imageUrl = mediaContent.getAttribute('url') || '';
+                                break;
+                            }
+                        }
+                    }
+                    if (!imageUrl && link.includes('onedio.com')) {
+                        console.log(`Onedio haber için resim bulunamadı, link: ${link}`);
+                        imageUrl = 'https://via.placeholder.com/150'; // Hâlâ bulunamazsa placeholder
+                    }
+
+                    const newsItem = {
+                        categories: [category],
+                        title,
+                        imageUrl,
+                        description,
+                        date: pubDate,
+                        link,
+                        source: link.includes('milliyet') ? 'milliyet' : 
+                               link.includes('haberturk') ? 'haberturk' : 
+                               link.includes('onedio') ? 'onedio' : 
+                               link.includes('otoaktuel') ? 'otoaktuel' : 
+                               link.includes('sabah') ? 'sabah' : 
+                               link.includes('mynet') ? 'mynet' : 
+                               link.includes('hurriyet') ? 'hurriyet' : 
+                               link.includes('ntv') ? 'ntv' : 'unknown',
+                    };
+
+                    console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
+
+                    if (!newsById.has(uniqueKey)) {
+                        newsById.set(uniqueKey, newsItem);
+                        allNews.push(newsItem);
+                    } else {
+                        const existing = newsById.get(uniqueKey);
+                        if (!existing.categories.includes(category)) {
+                            existing.categories.push(category);
+                        }
+                    }
+                });
+            }
         }
 
         console.log(`Total news items in allNews: ${allNews.length}`);
@@ -281,11 +381,11 @@ function renderNews() {
 
         const newsItem = document.createElement('div');
         newsItem.className = 'news-item';
-        newsItem.style.backgroundColor = color; // news-item'ın tüm background'u kategori rengine göre ayarlandı
+        newsItem.style.backgroundColor = color;
         newsItem.innerHTML = `
             <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
             <div class="news-title" style="background-color: ${color};">${news.title}</div>
-            <div class="news-date">${formattedDate}</div> <!-- Koyuluk katmanı CSS'te zaten var -->
+            <div class="news-date">${formattedDate}</div>
         `;
         newsItem.addEventListener('click', () => showNewsDetail(news));
         newsList.appendChild(newsItem);
@@ -308,7 +408,6 @@ function showNewsDetail(news) {
         return;
     }
 
-    // Doğrudan haber URL'sini kullan
     const displayUrl = url;
     console.log(`Loading URL: ${displayUrl}`);
 
@@ -352,4 +451,5 @@ document.getElementById('news-list').addEventListener('scroll', function () {
 });
 
 // İlk yükleme
+updateSourceBar();
 fetchNews();
