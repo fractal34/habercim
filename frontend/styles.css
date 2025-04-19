@@ -157,7 +157,6 @@ body {
 
 .news-title {
     font-size: 13px;
-    font-color: #ffffff;
     font-weight: bold;
     line-height: 1.3;
     flex-grow: 1;
@@ -166,6 +165,7 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    color: white;
 }
 
 .news-date {
