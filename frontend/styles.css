@@ -1,284 +1,153 @@
-/* Modernize Edilmiş CSS (1. versiyon baz alınarak 2. versiyona uygulandı) */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #121212;
+  color: white;
 }
 
-body {
-    background-color: #f0f0f0;
-    color: #333;
-    height: 100vh;
-    overflow: hidden;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #1f1f1f;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+header h1 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  margin: 0;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: #1a1a1a;
+}
+
+.category {
+  padding: 0.3rem 0.8rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  color: white;
+  transition: transform 0.2s;
+  background-color: var(--category-color, #555);
+}
+
+.category:hover {
+  transform: scale(1.05);
+}
+
+.category.active {
+  outline: 2px solid white;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.header {
-    background-color: #ff4500;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    position: relative;
-    z-index: 10;
-}
-
-.header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 25px;
-}
-
-.logo {
-    font-size: 36px;
-    font-weight: bold;
-    color: white;
-    text-decoration: none;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-#clock,
-.language {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.language {
-    cursor: pointer;
-}
-
-.category-menu {
-    display: flex;
-    background-color: #e03e00;
-    padding: 8px 20px;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-top: 1px solid #ff6a36;
-    border-bottom: 1px solid #d13700;
-}
-
-.category-btn {
-    background-color: #333;
-    border: none;
-    color: white;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 8px 18px;
-    margin-right: 10px;
-    cursor: pointer;
-    border-radius: 15px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    outline: none;
-}
-
-.category-btn:last-child {
-    margin-right: 0;
-}
-
-.category-btn:hover:not(.active) {
-    background-color: #555;
-}
-
-.category-btn:active:not(.active) {
-    transform: scale(0.98);
-}
-
-.category-btn.active {
-    background-color: #fff;
-    color: #ff4500;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-}
-
-/* Renkli kategoriler için eski yapı da korunabilir (isteğe bağlı) */
-.category-btn.active[data-category="Son Dakika"] { background-color: #ff0000; color: white; }
-.category-btn.active[data-category="Spor"] { background-color: #008000; color: white; }
-.category-btn.active[data-category="Magazin"] { background-color: #800080; color: white; }
-.category-btn.active[data-category="Dünya"] { background-color: #ffa500; color: white; }
-.category-btn.active[data-category="Gündem"] { background-color: #0000ff; color: white; }
-.category-btn.active[data-category="Politika"] { background-color: #333; color: white; }
-.category-btn.active[data-category="Otomobil"] { background-color: #00008B; color: white; }
-
-.main-content {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    background-color: #fff;
-    border-top: 3px solid #ccc;
-}
-
-#news-list {
-    flex: 0 0 60%;
-    overflow-y: auto;
-    padding: 15px;
-    background-color: #f8f8f8;
-    border-right: 1px solid #ccc;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
-    align-content: start;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .news-item {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    height: 220px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #1e1e1e;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  color: white;
 }
 
 .news-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
 }
 
-.news-image {
-    width: 100%;
-    height: 110px;
-    object-fit: cover;
-    background-color: #eee;
-    border-bottom: 1px solid #eee;
+.news-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.news-content {
+  padding: 0.8rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #2a2a2a;
 }
 
 .news-title {
-    font-size: 13px;
-    font-weight: bold;
-    line-height: 1.3;
-    flex-grow: 1;
-    padding: 8px 8px 0;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.5rem;
 }
 
-.news-date {
-    font-size: 11px;
-    color: #fff;
-    text-align: center;
-    padding: 3px 5px;
-    border-radius: 4px;
-    margin: 8px;
-    background-color: #999; /* JS ile değiştirilecek */
-}
-
-.news-detail {
-    flex: 0 0 40%;
-    background-color: #e9e9e9;
-    overflow: hidden;
-    position: relative;
-}
-
-.news-detail iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
+.news-time {
+  font-size: 0.75rem;
+  color: #cccccc;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background-color: #333;
+  border-radius: 0.5rem;
+  align-self: flex-start;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  background: #1a1a1a;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
+  background: #555;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #aaa;
-}
-
-/* Responsive */
-@media (max-width: 992px) {
-    #news-list {
-        flex: 0 0 50%;
-    }
-    .news-detail {
-        flex: 0 0 50%;
-    }
-    .news-item {
-        height: 200px;
-    }
-    .news-image {
-        height: 100px;
-    }
+  background: #777;
 }
 
 @media (max-width: 768px) {
-    .main-content {
-        flex-direction: column;
-        height: auto;
-    }
+  .container {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    padding: 0.5rem;
+  }
 
-    #news-list, .news-detail {
-        flex: 1 1 auto;
-        width: 100%;
-        height: calc(50vh - 60px);
-        max-height: 50vh;
-    }
-
-    #news-list {
-        border-right: none;
-        border-bottom: 1px solid #ccc;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    }
-
-    .header-top {
-        padding: 8px 15px;
-    }
-    .logo {
-        font-size: 28px;
-    }
-    #clock, .language {
-        font-size: 14px;
-    }
-    .category-menu {
-        padding: 6px 15px;
-    }
-    .category-btn {
-        padding: 6px 14px;
-        font-size: 13px;
-    }
+  .news-item img {
+    height: 100px;
+  }
 }
 
-@media (max-width: 480px) {
-    #news-list {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 10px;
-        padding: 10px;
-    }
-    .news-item {
-        height: 180px;
-    }
-    .news-image {
-        height: 90px;
-    }
-    .news-title {
-        font-size: 12px;
-    }
-    .news-date {
-        font-size: 10px;
-    }
+/* Kategori renkleri */
+.category[data-color] {
+  background-color: attr(data-color);
 }
+
+/* Örnek kategori renkleri */
+.category[data-category="Gündem"] { background-color: #ff4d4f; }
+.category[data-category="Ekonomi"] { background-color: #1890ff; }
+.category[data-category="Spor"] { background-color: #52c41a; }
+.category[data-category="Dünya"] { background-color: #faad14; }
+.category[data-category="Magazin"] { background-color: #eb2f96; }
+.category[data-category="Teknoloji"] { background-color: #722ed1; }
+.category[data-category="Sağlık"] { background-color: #13c2c2; }
+.category[data-category="Kültür"] { background-color: #a0d911; }
