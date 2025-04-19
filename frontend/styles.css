@@ -165,7 +165,9 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    color: white;
 }
+
 
 .news-date {
     font-size: 11px;
