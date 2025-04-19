@@ -138,7 +138,7 @@ async function fetchNews() {
                     return;
                 }
 
-                // Haber ID'sini çıkar (Milliyet ve Habertürk için farklı formatlar)
+                // Haber ID'sini çıkar
                 let newsId;
                 let sourcePrefix = '';
                 if (link.includes('milliyet.com.tr')) {
@@ -153,6 +153,10 @@ async function fetchNews() {
                     const match = link.match(/(\d+)$/);
                     newsId = match ? match[0] : link;
                     sourcePrefix = 'onedio-';
+                } else if (link.includes('motor1.com')) {
+                    const match = link.match(/(\d+)$/);
+                    newsId = match ? match[0] : link;
+                    sourcePrefix = 'motor1-';
                 } else {
                     newsId = link;
                     sourcePrefix = 'unknown-';
@@ -178,12 +182,7 @@ async function fetchNews() {
                     div.innerHTML = description;
                     const img = div.querySelector('img');
                     if (img) {
-                        // Önce src özniteliğini kontrol et
-                        imageUrl = img.getAttribute('src') || '';
-                        // Eğer src boşsa, data-src veya başka bir özniteliği kontrol et
-                        if (!imageUrl) {
-                            imageUrl = img.getAttribute('data-src') || '';
-                        }
+                        imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
                     }
                     description = div.textContent || '';
                 }
@@ -192,11 +191,12 @@ async function fetchNews() {
                     if (enclosure) imageUrl = enclosure.getAttribute('url') || '';
                 }
                 if (!imageUrl) {
-                    // Eğer hâlâ resim bulunamadıysa, Onedio için özel bir kontrol yap
-                    if (link.includes('onedio.com')) {
-                        console.log(`Onedio haber için resim bulunamadı, link: ${link}`);
-                        imageUrl = 'https://via.placeholder.com/150'; // Geçici olarak placeholder
-                    }
+                    const mediaContent = item.querySelector('content[medium="image"]');
+                    if (mediaContent) imageUrl = mediaContent.getAttribute('url') || '';
+                }
+                if (!imageUrl && link.includes('onedio.com')) {
+                    console.log(`Onedio haber için resim bulunamadı, link: ${link}`);
+                    imageUrl = 'https://via.placeholder.com/150'; // Hâlâ bulunamazsa placeholder
                 }
 
                 const newsItem = {
@@ -206,7 +206,7 @@ async function fetchNews() {
                     description,
                     date: pubDate,
                     link,
-                    source: link.includes('milliyet') ? 'milliyet' : link.includes('haberturk') ? 'haberturk' : link.includes('onedio') ? 'onedio' : 'unknown',
+                    source: link.includes('milliyet') ? 'milliyet' : link.includes('haberturk') ? 'haberturk' : link.includes('onedio') ? 'onedio' : link.includes('motor1') ? 'motor1' : 'unknown',
                 };
 
                 console.log(`Adding news item to ${category}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
