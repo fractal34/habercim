@@ -130,7 +130,7 @@ body {
 }
 
 .news-item {
-    background-color: white;
+    background-color: inherit;
     border: 1px solid #ddd;
     border-radius: 8px;
     overflow: hidden;
