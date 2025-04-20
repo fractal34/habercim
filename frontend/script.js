@@ -134,6 +134,7 @@ document.querySelectorAll('.category-btn').forEach(button => {
 
 // RSS'ten haberleri çek
 // RSS'ten haberleri çek
+// RSS'ten haberleri çek
 async function fetchNews() {
     const newsList = document.getElementById('news-list');
     newsList.innerHTML = '<p>Yükleniyor...</p>';
@@ -273,6 +274,7 @@ async function fetchNews() {
                         const img = div.querySelector('img');
                         if (img) {
                             imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
+                            console.log(`Image found in description for ${source}: ${imageUrl}`);
                         }
                         description = div.textContent || '';
                     }
@@ -281,6 +283,18 @@ async function fetchNews() {
                         if (enclosure) {
                             imageUrl = enclosure.getAttribute('url') || '';
                             console.log(`Enclosure image found for ${source}: ${imageUrl}`);
+                        } else if (link.includes('sabah.com.tr')) {
+                            console.log(`No enclosure image found for Sabah, checking other tags for link: ${link}`);
+                            // Sabah için description içinde resim olabilir mi kontrol et
+                            if (description) {
+                                const div = document.createElement('div');
+                                div.innerHTML = description;
+                                const img = div.querySelector('img');
+                                if (img) {
+                                    imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
+                                    console.log(`Image found in description for Sabah: ${imageUrl}`);
+                                }
+                            }
                         }
                     }
                     if (!imageUrl) {
@@ -300,6 +314,14 @@ async function fetchNews() {
                         if (ipImage) {
                             imageUrl = ipImage;
                             console.log(`ipimage found for Mynet: ${imageUrl}`);
+                        }
+                    }
+                    if (!imageUrl && link.includes('sabah.com.tr')) {
+                        // Sabah için son çare: Thumbnail veya başka bir etiket var mı kontrol et
+                        const thumbnail = item.querySelector('thumbnail')?.textContent || '';
+                        if (thumbnail) {
+                            imageUrl = thumbnail;
+                            console.log(`Thumbnail found for Sabah: ${imageUrl}`);
                         }
                     }
                     if (!imageUrl) {
