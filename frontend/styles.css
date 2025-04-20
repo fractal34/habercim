@@ -86,7 +86,7 @@ body {
     font-weight: bold;
     line-height: 0.5;
     flex-grow: 0;
-    padding: 5px 0; /* padding-right ve padding-left sıfırlanır */
+    padding: 5px 2px; /* padding-right ve padding-left sıfırlanır */
     overflow: hidden;
     display: inline-block; /* inline-block ile boşluklar kontrol edilir */
     -webkit-line-clamp: 3;
@@ -107,6 +107,7 @@ body {
 
 .source-item input[type="checkbox"] {
     margin-right: 5px;
+    margin-left: 5px; /* Eklendi */
 }
 
 .category-btn {
