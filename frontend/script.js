@@ -86,9 +86,8 @@ function updateSourceBar() {
 
         // Kategori başlığını ekle (örneğin "SON DAKİKA:")
         const categoryTitle = document.createElement('span');
+        categoryTitle.className = 'category-source-title'; // Aynı class'ı kullan
         categoryTitle.textContent = ` - ${category.toUpperCase()}: `;
-        categoryTitle.style.color = 'white';
-        categoryTitle.style.fontWeight = 'bold';
         categoryTitle.style.marginRight = '5px';
         sourceMenu.appendChild(categoryTitle);
 
