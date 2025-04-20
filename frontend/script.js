@@ -87,8 +87,7 @@ function updateSourceBar() {
         // Kategori başlığını ekle (örneğin "SON DAKİKA:")
         const categoryTitle = document.createElement('span');
         categoryTitle.className = 'category-source-title'; // Aynı class'ı kullan
-        categoryTitle.textContent = `- ${category.toUpperCase()}: `; // Tek karakterlik boşluk
-        categoryTitle.style.marginRight = '5px';
+        categoryTitle.textContent = ` - ${category.toUpperCase()}: `; // Tek karakterlik boşluk
         sourceMenu.appendChild(categoryTitle);
 
         // Kategoriye ait kaynakları ekle
