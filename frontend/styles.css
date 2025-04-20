@@ -84,15 +84,15 @@ body {
     font-size: 13px;
     font-weight: bold;
     line-height: 0.5;
-    flex-grow: 0; /* Yazının genişlemesini engeller */
-    padding: 3px 3px 3px;
+    flex-grow: 0;
+    padding: 5px 9px 5px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     color: white;
     align-content: center;
-    margin-right: 10px; /* Kaynaklarla arasında boşluk bırakır */
+    margin-right: 5px;
 }
 
 .source-item {
