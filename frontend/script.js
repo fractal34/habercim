@@ -48,12 +48,14 @@ const MAX_NEWS_PER_CATEGORY = 50;
 // Seçili kategoriler (varsayılan olarak Son Dakika seçili)
 let selectedCategories = ['Son Dakika'];
 
-// Seçili kaynaklar (varsayılan olarak her kategorideki tüm kaynaklar seçili)
+// Seçili kaynaklar (Son Dakika için sadece Milliyet seçili, diğer kategoriler için tüm kaynaklar seçili)
 let selectedSources = {};
-
-// Her kategorideki kaynakları varsayılan olarak seçili yap
 Object.keys(categoryRssUrls).forEach(category => {
-    selectedSources[category] = Object.keys(categoryRssUrls[category]);
+    if (category === 'Son Dakika') {
+        selectedSources[category] = ['Milliyet']; // Sadece Milliyet seçili
+    } else {
+        selectedSources[category] = Object.keys(categoryRssUrls[category]); // Diğer kategorilerde tüm kaynaklar seçili
+    }
 });
 
 let allNews = [];
@@ -132,9 +134,6 @@ document.querySelectorAll('.category-btn').forEach(button => {
     });
 });
 
-// RSS'ten haberleri çek
-// RSS'ten haberleri çek
-// RSS'ten haberleri çek
 // RSS'ten haberleri çek
 async function fetchNews() {
     const newsList = document.getElementById('news-list');
