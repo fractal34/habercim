@@ -76,21 +76,23 @@ body {
     white-space: nowrap;
     border-top: 1px solid #ff6a36;
     border-bottom: 1px solid #d13700;
-    justify-content: flex-start; /* Checkbox'ları ve yazıları sola daya */
+    justify-content: flex-start;
+    align-items: flex-start; /* Yazıları sola dayar */
 }
 
 .category-source-title {
     font-size: 13px;
     font-weight: bold;
     line-height: 0.5;
-    flex-grow: 1;
+    flex-grow: 0; /* Yazının genişlemesini engeller */
     padding: 3px 3px 3px;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     color: white;
-    align-content: center; /* Eklendi */
+    align-content: center;
+    margin-right: 10px; /* Kaynaklarla arasında boşluk bırakır */
 }
 
 .source-item {
@@ -99,6 +101,7 @@ body {
     margin-right: 15px;
     color: white;
     font-size: 14px;
+    text-align: left; /* Yazıları sola hizalar */
 }
 
 .source-item input[type="checkbox"] {
