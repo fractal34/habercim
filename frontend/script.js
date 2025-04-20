@@ -77,7 +77,7 @@ updateClock();
 function updateSourceBar() {
     const sourceMenu = document.querySelector('.category-source-menu');
     // "KAYNAKLAR" kısmını koru
-    sourceMenu.innerHTML = '<nav class="category-source-title">KAYNAKLAR</nav>';
+    sourceMenu.innerHTML = '<nav class="category-source-title" style="display: inline;">KAYNAKLAR</nav>';
 
     // Seçili kategorilere göre kaynakları kategori başlıklarıyla ekle
     selectedCategories.forEach(category => {
@@ -86,8 +86,9 @@ function updateSourceBar() {
 
         // Kategori başlığını ekle (örneğin "SON DAKİKA:")
         const categoryTitle = document.createElement('span');
-        categoryTitle.className = 'category-source-title'; // Aynı class'ı kullan
-        categoryTitle.textContent = `-${category.toUpperCase()}: `; // Boşluk tamamen kaldırıldı
+        categoryTitle.className = 'category-source-title';
+        categoryTitle.style.display = 'inline'; // Boşlukları kontrol etmek için inline
+        categoryTitle.textContent = ` - ${category.toUpperCase()}: `; // Çizgiden sonra boşluk geri eklendi
         sourceMenu.appendChild(categoryTitle);
 
         // Kategoriye ait kaynakları ekle
