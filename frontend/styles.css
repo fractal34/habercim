@@ -1,4 +1,4 @@
-/* Modernize Edilmiş CSS (1. versiyon baz alınarak 2. versiyona uygulandı) */
+/* Modernize Edilmiş CSS (1. versiyon baz alınarak 2. versiyona uygulandı) ek oldu */
 
 * {
     margin: 0;
@@ -76,6 +76,7 @@ body {
     white-space: nowrap;
     border-top: 1px solid #ff6a36;
     border-bottom: 1px solid #d13700;
+    justify-content: flex-start; /* Checkbox'ları ve yazıları sola daya */
 }
 
 .category-source-title {
@@ -89,6 +90,7 @@ body {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     color: white;
+    align-content: center; /* Eklendi */
 }
 
 .source-item {
