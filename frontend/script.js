@@ -135,6 +135,7 @@ document.querySelectorAll('.category-btn').forEach(button => {
 // RSS'ten haberleri çek
 // RSS'ten haberleri çek
 // RSS'ten haberleri çek
+// RSS'ten haberleri çek
 async function fetchNews() {
     const newsList = document.getElementById('news-list');
     newsList.innerHTML = '<p>Yükleniyor...</p>';
