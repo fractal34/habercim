@@ -133,6 +133,7 @@ document.querySelectorAll('.category-btn').forEach(button => {
 });
 
 // RSS'ten haberleri çek
+// RSS'ten haberleri çek
 async function fetchNews() {
     const newsList = document.getElementById('news-list');
     newsList.innerHTML = '<p>Yükleniyor...</p>';
@@ -276,8 +277,11 @@ async function fetchNews() {
                         description = div.textContent || '';
                     }
                     if (!imageUrl) {
-                        const enclosure = item.querySelector('enclosure');
-                        if (enclosure) imageUrl = enclosure.getAttribute('url') || '';
+                        const enclosure = item.querySelector('enclosure[type^="image"]');
+                        if (enclosure) {
+                            imageUrl = enclosure.getAttribute('url') || '';
+                            console.log(`Enclosure image found for ${source}: ${imageUrl}`);
+                        }
                     }
                     if (!imageUrl) {
                         const mediaContents = item.getElementsByTagName('media:content');
@@ -286,13 +290,21 @@ async function fetchNews() {
                             const type = mediaContent.getAttribute('type') || '';
                             if (type.startsWith('image/')) {
                                 imageUrl = mediaContent.getAttribute('url') || '';
+                                console.log(`Media:content image found for ${source}: ${imageUrl}`);
                                 break;
                             }
                         }
                     }
-                    if (!imageUrl && link.includes('onedio.com')) {
-                        console.log(`Onedio haber için resim bulunamadı, link: ${link}`);
-                        imageUrl = 'https://via.placeholder.com/150'; // Hâlâ bulunamazsa placeholder
+                    if (!imageUrl && link.includes('mynet.com')) {
+                        const ipImage = item.querySelector('ipimage')?.textContent || '';
+                        if (ipImage) {
+                            imageUrl = ipImage;
+                            console.log(`ipimage found for Mynet: ${imageUrl}`);
+                        }
+                    }
+                    if (!imageUrl) {
+                        console.log(`No image found for item in ${category} from ${source}, link: ${link}`);
+                        imageUrl = 'https://via.placeholder.com/150'; // Placeholder
                     }
 
                     const newsItem = {
