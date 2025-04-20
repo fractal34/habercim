@@ -76,14 +76,23 @@ updateClock();
 // Kaynak seçim barını güncelle
 function updateSourceBar() {
     const sourceMenu = document.querySelector('.category-source-menu');
-    // "KAYNAKLAR:" kısmını koru, sadece kaynakları güncelle
-    sourceMenu.innerHTML = '<nav class="category-source-title">KAYNAKLAR:</nav>';
+    // "KAYNAKLAR" kısmını koru
+    sourceMenu.innerHTML = '<nav class="category-source-title">KAYNAKLAR</nav>';
 
-    // Seçili kategorilere göre kaynakları ekle
+    // Seçili kategorilere göre kaynakları kategori başlıklarıyla ekle
     selectedCategories.forEach(category => {
         const sources = categoryRssUrls[category];
         if (!sources) return;
 
+        // Kategori başlığını ekle (örneğin "SON DAKİKA:")
+        const categoryTitle = document.createElement('span');
+        categoryTitle.textContent = ` - ${category.toUpperCase()}: `;
+        categoryTitle.style.color = 'white';
+        categoryTitle.style.fontWeight = 'bold';
+        categoryTitle.style.marginRight = '5px';
+        sourceMenu.appendChild(categoryTitle);
+
+        // Kategoriye ait kaynakları ekle
         Object.keys(sources).forEach(source => {
             const label = document.createElement('label');
             label.className = 'source-item';
