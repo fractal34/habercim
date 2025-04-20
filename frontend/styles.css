@@ -78,6 +78,7 @@ body {
     border-bottom: 1px solid #d13700;
     justify-content: flex-start;
     align-items: flex-start; /* Yazıları sola dayar */
+    gap: 0; /* KAYNAKLAR ile kategori başlıkları arasındaki boşluğu kaldırmak için */
 }
 
 .category-source-title {
@@ -85,14 +86,14 @@ body {
     font-weight: bold;
     line-height: 0.5;
     flex-grow: 0;
-    padding: 5px 9px 5px;
+    padding: 5px 0; /* padding-right ve padding-left sıfırlanır */
     overflow: hidden;
-    display: -webkit-box;
+    display: inline-block; /* inline-block ile boşluklar kontrol edilir */
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     color: white;
     align-content: center;
-    margin-right: 5px;
+    margin: 0; /* margin sıfırlanır */
 }
 
 .source-item {
