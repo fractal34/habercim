@@ -58,12 +58,26 @@ body {
 }
 
 .settings-btn {
-    display: none;
-    background: none;
+    padding: 8px 16px;
+    margin: 5px;
     border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
     color: white;
-    font-size: 20px;
     cursor: pointer;
+    font-size: 14px;
+}
+
+.settings-btn:hover {
+    background-color: #45a049;
+}
+
+#reset-categories, #reset-categories-mobile {
+    background-color: #f44336; /* Kırmızı tonu */
+}
+
+#reset-categories:hover, #reset-categories-mobile:hover {
+    background-color: #da190b;
 }
 
 .logo {

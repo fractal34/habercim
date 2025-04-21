@@ -43,14 +43,20 @@
 
         <!-- Mobil Menü Overlay -->
         <div id="mobile-menu" class="mobile-menu">
-            <button id="close-menu-btn" class="close-menu-btn">✖</button>
-            <div id="mobile-categories" class="mobile-categories">
-                <!-- Kategoriler ve kaynaklar JavaScript ile buraya eklenecek -->
+            <div class="mobile-menu-header">
+                <button id="close-menu-btn" class="close-menu-btn">✖</button>
+            </div>
+            <div id="mobile-categories" class="mobile-categories"></div>
+            <div class="mobile-settings">
+                <button id="increase-size-mobile" class="settings-btn">+</button>
+                <button id="decrease-size-mobile" class="settings-btn">-</button>
+                <button id="reset-categories-mobile" class="settings-btn">Kategorileri Sıfırla</button>
             </div>
         </div>
 
         <!-- Ayarlar Menüsü -->
         <div id="settings-menu" class="settings-menu">
+            <button id="reset-categories" class="settings-btn">Kategorileri Sıfırla</button>
             <button id="increase-size-mobile" class="size-btn">+</button>
             <button id="decrease-size-mobile" class="size-btn">-</button>
         </div>

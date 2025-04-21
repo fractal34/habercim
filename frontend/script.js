@@ -112,6 +112,32 @@ settingsBtn.addEventListener('click', () => {
     settingsMenu.classList.toggle('active');
 });
 
+// Kategorileri sıfırlama fonksiyonu
+function resetCategories() {
+    // Sadece "Son Dakika" kategorisini ve "Milliyet" kaynağını aktif yap
+    selectedCategories = ['Son Dakika'];
+    selectedSources = {};
+    Object.keys(categoryRssUrls).forEach(category => {
+        if (category === 'Son Dakika') {
+            selectedSources[category] = ['Milliyet'];
+        } else {
+            selectedSources[category] = [];
+        }
+    });
+
+    // Arayüzü güncelle
+    updateSourceBar();
+    fetchNews();
+
+    // localStorage'ı güncelle
+    localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+    localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
+}
+
+// "Kategorileri Sıfırla" butonuna olay dinleyici ekle
+document.getElementById('reset-categories').addEventListener('click', resetCategories);
+document.getElementById('reset-categories-mobile').addEventListener('click', resetCategories);
+
 // Kaynak seçim barını güncelle (hem masaüstü hem mobil için)
 function updateSourceBar() {
     const sourceMenu = document.querySelector('.category-source-menu');
@@ -382,7 +408,7 @@ document.getElementById('decrease-size-mobile').addEventListener('click', () => 
 // RSS'ten haberleri çek
 async function fetchNews() {
     const newsList = document.getElementById('news-list');
-    newsList.innerHTML = '<p>Yükleniyor...</p>';
+    newsList.innerHTML = '<p>Haberlerin yüklenme süresi seçtiğiniz kategori sayısına göre değişebilir. Beklediğiniz için teşekkürler.</p>';
     allNews = [];
     displayedNewsCount = 50;
     lastRenderedNewsCount = 0;
@@ -441,6 +467,9 @@ async function fetchNews() {
                 const items = Array.from(xml.querySelectorAll('item')).slice(0, MAX_NEWS_PER_CATEGORY);
 
                 console.log(`Fetched ${items.length} items for category ${category} from ${source} (limited to ${MAX_NEWS_PER_CATEGORY})`);
+
+                const now = new Date();
+                const threeDaysInMs = 72 * 60 * 60 * 1000; // 72 saat (3 gün) milisaniye cinsinden
 
                 items.forEach(item => {
                     let link = item.querySelector('link')?.textContent || '';
@@ -503,6 +532,12 @@ async function fetchNews() {
                     const pubDateStr = item.querySelector('pubDate')?.textContent;
                     const pubDate = parsePubDate(pubDateStr);
 
+                    // 72 saatten eski haberleri filtrele
+                    if ((now - pubDate) > threeDaysInMs) {
+                        console.log(`Skipping old news item: ${title}, Date: ${pubDate}`);
+                        return;
+                    }
+
                     const uniqueKey = `${sourcePrefix}${newsId}-${title}-${pubDate.toISOString()}`; // Benzersiz anahtar
 
                     let imageUrl = '';
@@ -556,9 +591,9 @@ async function fetchNews() {
                     }
 
                     const currentTime = new Date();
-                    const tenMinutes = 10 * 60 * 1000; // 10 dakika milisaniye cinsinden
+                    const thirtyMinutes = 30 * 60 * 1000; // 30 dakika milisaniye cinsinden
                     const isNew = pubDate > lastFetchTime;
-                    const newLabelUntil = isNew ? new Date(currentTime.getTime() + tenMinutes) : null;
+                    const newLabelUntil = isNew ? new Date(currentTime.getTime() + thirtyMinutes) : null;
 
                     const newsItem = {
                         categories: [category],
@@ -573,7 +608,7 @@ async function fetchNews() {
                                link.includes('otoaktuel') ? 'otoaktuel' : 
                                link.includes('mynet') ? 'mynet' : 
                                link.includes('finansingundemi') ? 'finansingundemi' : 'unknown',
-                        newLabelUntil: newLabelUntil // 10 dakika boyunca "Yeni" etiketi göster
+                        newLabelUntil: newLabelUntil // 30 dakika boyunca "Yeni" etiketi göster
                     };
 
                     console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}, New Until: ${newsItem.newLabelUntil}`);
@@ -588,7 +623,7 @@ async function fetchNews() {
                         }
                         // Eğer mevcut haber zaten varsa ve yeni geldiyse newLabelUntil güncelle
                         if (isNew) {
-                            existing.newLabelUntil = new Date(currentTime.getTime() + tenMinutes);
+                            existing.newLabelUntil = new Date(currentTime.getTime() + thirtyMinutes);
                         }
                     }
                 });
