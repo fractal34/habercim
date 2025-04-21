@@ -50,16 +50,16 @@ const corsProxy = 'https://habercim.vercel.app/api/proxy?url=';
 const isMobile = window.innerWidth <= 768;
 const MAX_NEWS_PER_CATEGORY = isMobile ? 10 : 50;
 
-// Seçili kategoriler (varsayılan olarak Son Dakika seçili)
+// Seçili kategoriler (varsayılan olarak sadece Son Dakika seçili)
 let selectedCategories = ['Son Dakika'];
 
-// Seçili kaynaklar (Son Dakika için sadece Milliyet seçili, diğer kategoriler için tüm kaynaklar seçili)
+// Seçili kaynaklar (sadece Son Dakika için Milliyet seçili, diğer kategoriler için hiçbir kaynak seçili değil)
 let selectedSources = {};
 Object.keys(categoryRssUrls).forEach(category => {
     if (category === 'Son Dakika') {
         selectedSources[category] = ['Milliyet']; // Sadece Milliyet seçili
     } else {
-        selectedSources[category] = Object.keys(categoryRssUrls[category]); // Diğer kategorilerde tüm kaynaklar seçili
+        selectedSources[category] = []; // Diğer kategorilerde hiçbir kaynak seçili değil
     }
 });
 
@@ -113,7 +113,7 @@ function updateSourceBar() {
     // Mobil için menüyü güncelle
     mobileCategories.innerHTML = '';
 
-    // Tüm kategoriler için başlık ve checkbox ekle (mobil menüde)
+    // Tüm kategoriler için başlık ve kaynaklar (mobil menüde)
     const allCategories = Object.keys(categoryRssUrls);
     const categoryPairs = [];
     for (let i = 0; i < allCategories.length; i += 2) {
@@ -128,29 +128,11 @@ function updateSourceBar() {
             const categoryDiv = document.createElement('div');
             categoryDiv.className = 'mobile-category-item';
 
-            // Kategori checkbox'ı
-            const categoryLabel = document.createElement('label');
-            categoryLabel.className = 'mobile-category-label';
-            const categoryCheckbox = document.createElement('input');
-            categoryCheckbox.type = 'checkbox';
-            categoryCheckbox.checked = selectedCategories.includes(category);
-            categoryCheckbox.dataset.category = category;
-
-            categoryCheckbox.addEventListener('change', () => {
-                if (categoryCheckbox.checked) {
-                    if (!selectedCategories.includes(category)) {
-                        selectedCategories.push(category);
-                    }
-                } else {
-                    selectedCategories = selectedCategories.filter(cat => cat !== category);
-                }
-                updateSourceBar();
-                fetchNews();
-            });
-
-            categoryLabel.appendChild(categoryCheckbox);
-            categoryLabel.appendChild(document.createTextNode(category.toUpperCase()));
-            categoryDiv.appendChild(categoryLabel);
+            // Kategori başlığı (checkbox olmadan)
+            const categoryTitle = document.createElement('span');
+            categoryTitle.className = 'mobile-category-title';
+            categoryTitle.textContent = category.toUpperCase();
+            categoryDiv.appendChild(categoryTitle);
 
             // Kategoriye ait kaynaklar
             const sources = categoryRssUrls[category];
@@ -169,9 +151,16 @@ function updateSourceBar() {
                             if (!selectedSources[category].includes(source)) {
                                 selectedSources[category].push(source);
                             }
+                            if (!selectedCategories.includes(category)) {
+                                selectedCategories.push(category);
+                            }
                         } else {
                             selectedSources[category] = selectedSources[category].filter(s => s !== source);
+                            if (selectedSources[category].length === 0) {
+                                selectedCategories = selectedCategories.filter(cat => cat !== category);
+                            }
                         }
+                        updateSourceBar();
                         fetchNews();
                     });
 
@@ -222,6 +211,15 @@ function updateSourceBar() {
             sourceMenu.appendChild(label);
         });
     });
+
+    // Masaüstü kategori butonlarını güncelle
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        if (selectedCategories.includes(btn.dataset.category)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
 }
 
 // Kategori butonlarını dinle
@@ -230,8 +228,11 @@ document.querySelectorAll('.category-btn').forEach(button => {
         const category = button.dataset.category;
         if (selectedCategories.includes(category)) {
             selectedCategories = selectedCategories.filter(cat => cat !== category);
+            selectedSources[category] = []; // Kategori seçimi kalkarsa kaynaklar da sıfırlanır
         } else {
             selectedCategories.push(category);
+            // Varsayılan olarak tüm kaynakları seçili yap
+            selectedSources[category] = Object.keys(categoryRssUrls[category]);
         }
 
         document.querySelectorAll('.category-btn').forEach(btn => {
@@ -250,7 +251,7 @@ document.querySelectorAll('.category-btn').forEach(button => {
 // Boyut değiştirme fonksiyonu
 function updateNewsSize() {
     const newsItems = document.querySelectorAll('.news-item');
-    const baseHeight = isMobile ? 120 : 220; // Mobil için 120px, masaüstü için 220px
+    const baseHeight = isMobile ? 150 : 220; // Mobil için 150px (başlık için artırıldı), masaüstü için 220px
     const baseImageHeight = isMobile ? 60 : 110; // Mobil için 60px, masaüstü için 110px
     const baseTitleFontSize = isMobile ? 12 : 13; // Mobil için 12px, masaüstü için 13px
     const baseDateFontSize = isMobile ? 10 : 11; // Mobil için 10px, masaüstü için 11px
@@ -616,7 +617,9 @@ function showNewsDetail(news) {
     if (isMobile) {
         const newsDetailOverlay = document.getElementById('news-detail-overlay');
         newsDetailOverlay.innerHTML = `
-            <button id="close-overlay-btn" class="close-overlay-btn">← Geri</button>
+            <div class="header-frame">
+                <button id="close-overlay-btn" class="close-overlay-btn">← Geri</button>
+            </div>
             <iframe id="news-iframe-overlay" name="news-iframe-overlay" frameborder="0" style="width:100%; height:100%;"
                 onload="console.log('Iframe loaded successfully: ${displayUrl}')"
                 onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde gösterilemiyor: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
