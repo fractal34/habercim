@@ -2,7 +2,6 @@
 const categoryRssUrls = {
     'Son Dakika': {
         'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/sondakikarss.xml',
-        'Sabah': 'https://www.sabah.com.tr/rss/sondakika.xml',
         'Mynet': 'http://www.mynet.com/haber/rss/sondakika',
     },
     'Spor': {
@@ -247,10 +246,6 @@ async function fetchNews() {
                         const match = link.match(/(\d+)$/);
                         newsId = match ? match[0] : link;
                         sourcePrefix = 'otoaktuel-';
-                    } else if (link.includes('sabah.com.tr')) {
-                        const match = link.match(/(\d+)$/);
-                        newsId = match ? match[0] : link;
-                        sourcePrefix = 'sabah-';
                     } else if (link.includes('mynet.com')) {
                         const match = link.match(/(\d+)$/);
                         newsId = match ? match[0] : link;
@@ -311,34 +306,6 @@ async function fetchNews() {
                             console.log(`ipimage found for Mynet: ${imageUrl}`);
                         }
                     }
-                    if (!imageUrl && link.includes('sabah.com.tr')) {
-                        console.log(`Checking additional tags for Sabah image, link: ${link}`);
-                        // Sabah için description içinde daha derin kontrol
-                        if (description) {
-                            const div = document.createElement('div');
-                            div.innerHTML = description;
-                            const img = div.querySelector('img');
-                            if (img) {
-                                imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
-                                console.log(`Image found in description for Sabah: ${imageUrl}`);
-                            } else {
-                                // HTML içeriğini daha dikkatli parse et
-                                const imgMatch = description.match(/<img[^>]+src=["'](.*?)["']/i);
-                                if (imgMatch && imgMatch[1]) {
-                                    imageUrl = imgMatch[1];
-                                    console.log(`Image found in description for Sabah via regex: ${imageUrl}`);
-                                }
-                            }
-                        }
-                        // Thumbnail kontrolü (yedek)
-                        if (!imageUrl) {
-                            const thumbnail = item.querySelector('thumbnail')?.getAttribute('url') || item.querySelector('thumbnail')?.textContent || '';
-                            if (thumbnail) {
-                                imageUrl = thumbnail;
-                                console.log(`Thumbnail found for Sabah: ${imageUrl}`);
-                            }
-                        }
-                    }
                     if (!imageUrl) {
                         console.log(`No image found for item in ${category} from ${source}, link: ${link}`);
                         imageUrl = 'https://via.placeholder.com/150'; // Placeholder
@@ -355,7 +322,6 @@ async function fetchNews() {
                                link.includes('haberturk') ? 'haberturk' : 
                                link.includes('onedio') ? 'onedio' : 
                                link.includes('otoaktuel') ? 'otoaktuel' : 
-                               link.includes('sabah') ? 'sabah' : 
                                link.includes('mynet') ? 'mynet' : 'unknown',
                     };
 
