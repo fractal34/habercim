@@ -50,16 +50,16 @@ const corsProxy = 'https://habercim.vercel.app/api/proxy?url=';
 const isMobile = window.innerWidth <= 768;
 const MAX_NEWS_PER_CATEGORY = isMobile ? 10 : 50;
 
-// Seçili kategoriler (varsayılan olarak sadece Son Dakika seçili)
-let selectedCategories = ['Son Dakika'];
-
-// Seçili kaynaklar (sadece Son Dakika için Milliyet seçili, diğer kategoriler için hiçbir kaynak seçili değil)
-let selectedSources = {};
+// Seçili kategoriler ve kaynaklar (localStorage'dan yükle, yoksa varsayılan değerler)
+let selectedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || ['Son Dakika'];
+let selectedSources = JSON.parse(localStorage.getItem('selectedSources')) || {};
 Object.keys(categoryRssUrls).forEach(category => {
-    if (category === 'Son Dakika') {
-        selectedSources[category] = ['Milliyet']; // Sadece Milliyet seçili
-    } else {
-        selectedSources[category] = []; // Diğer kategorilerde hiçbir kaynak seçili değil
+    if (!selectedSources[category]) {
+        if (category === 'Son Dakika') {
+            selectedSources[category] = ['Milliyet'];
+        } else {
+            selectedSources[category] = [];
+        }
     }
 });
 
@@ -67,6 +67,7 @@ let allNews = [];
 let displayedNewsCount = 50;
 let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
+let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
 
 // Boyut seviyesini takip etmek için değişken
 let sizeLevel = 0; // -2, -1, 0, 1, 2 gibi değerler alacak
@@ -220,6 +221,10 @@ function updateSourceBar() {
             btn.classList.remove('active');
         }
     });
+
+    // Seçimleri localStorage'a kaydet
+    localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+    localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
 }
 
 // Kategori butonlarını dinle
@@ -245,6 +250,9 @@ document.querySelectorAll('.category-btn').forEach(button => {
 
         updateSourceBar();
         fetchNews();
+        // Seçimleri localStorage'a kaydet
+        localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+        localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
     });
 });
 
@@ -552,6 +560,7 @@ async function fetchNews() {
                                link.includes('otoaktuel') ? 'otoaktuel' : 
                                link.includes('mynet') ? 'mynet' : 
                                link.includes('finansingundemi') ? 'finansingundemi' : 'unknown',
+                        isNew: pubDate > lastFetchTime && (new Date() - pubDate) < 10 * 60 * 1000 // 10 dakika içinde yayınlanmışsa yeni
                     };
 
                     console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}`);
@@ -573,6 +582,9 @@ async function fetchNews() {
         if (allNews.length > 0) {
             console.log(`First news item: ${JSON.stringify(allNews[0])}`);
         }
+
+        // lastFetchTime'ı güncelle
+        lastFetchTime = new Date();
 
         // Tarihe göre sırala (en yeniden eskiye)
         allNews.sort((a, b) => {
@@ -634,12 +646,14 @@ function renderNews() {
             newsItem.classList.add('mobile-news-item');
             newsItem.innerHTML = `
                 <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
+                ${news.isNew ? '<div class="news-new">Yeni</div>' : ''}
                 <div class="news-title" style="background-color: ${color};">${news.title}</div>
                 <div class="news-date">${formattedDate}</div>
             `;
         } else {
             newsItem.innerHTML = `
                 <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
+                ${news.isNew ? '<div class="news-new">Yeni</div>' : ''}
                 <div class="news-title" style="background-color: ${color};">${news.title}</div>
                 <div class="news-date">${formattedDate}</div>
             `;
@@ -733,3 +747,9 @@ document.getElementById('news-list').addEventListener('scroll', function () {
 // İlk yükleme
 updateSourceBar();
 fetchNews();
+
+// Her 3 dakikada bir otomatik refresh
+setInterval(() => {
+    console.log('Auto-refreshing news...');
+    fetchNews();
+}, 3 * 60 * 1000); // 3 dakika (180 saniye)

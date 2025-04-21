@@ -295,6 +295,18 @@ body {
     display: block;
 }
 
+.news-new {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: #ff0000;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    z-index: 1;
+}
+
 /* Mobil Menü Stilleri */
 .mobile-menu {
     position: fixed;
