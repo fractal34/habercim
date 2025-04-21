@@ -391,6 +391,21 @@ document.getElementById('decrease-size').addEventListener('click', () => {
     }
 });
 
+// Mobil için boyut artırma ve azaltma butonları
+document.getElementById('increase-size-mobile').addEventListener('click', () => {
+    if (sizeLevel < 2) {
+        sizeLevel++;
+        updateNewsSize();
+    }
+});
+
+document.getElementById('decrease-size-mobile').addEventListener('click', () => {
+    if (sizeLevel > -2) {
+        sizeLevel--;
+        updateNewsSize();
+    }
+});
+
 // RSS'ten haberleri çek
 async function fetchNews() {
     const newsList = document.getElementById('news-list');
