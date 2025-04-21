@@ -62,6 +62,9 @@ let displayedNewsCount = 50;
 let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
 
+// Boyut seviyesini takip etmek için değişken
+let sizeLevel = 0; // -2, -1, 0, 1, 2 gibi değerler alacak
+
 // Saat güncellemesi
 function updateClock() {
     const now = new Date();
@@ -138,6 +141,55 @@ document.querySelectorAll('.category-btn').forEach(button => {
         updateSourceBar();
         fetchNews();
     });
+});
+
+// Boyut değiştirme fonksiyonu
+function updateNewsSize() {
+    const newsItems = document.querySelectorAll('.news-item');
+    const baseHeight = 220; // Varsayılan yükseklik
+    const baseImageHeight = 110; // Varsayılan resim yüksekliği
+    const baseTitleFontSize = 13; // Varsayılan başlık yazı boyutu
+    const baseDateFontSize = 11; // Varsayılan tarih yazı boyutu
+
+    const heightIncrement = 10; // Her seviyede yükseklik artışı
+    const fontSizeIncrement = 1; // Her seviyede yazı boyutu artışı
+
+    const newHeight = baseHeight + (sizeLevel * heightIncrement);
+    const newImageHeight = baseImageHeight + (sizeLevel * heightIncrement / 2);
+    const newTitleFontSize = baseTitleFontSize + (sizeLevel * fontSizeIncrement);
+    const newDateFontSize = baseDateFontSize + (sizeLevel * fontSizeIncrement);
+
+    newsItems.forEach(item => {
+        item.style.height = `${newHeight}px`;
+        const image = item.querySelector('.news-image');
+        const title = item.querySelector('.news-title');
+        const date = item.querySelector('.news-date');
+
+        if (image) image.style.height = `${newImageHeight}px`;
+        if (title) title.style.fontSize = `${newTitleFontSize}px`;
+        if (date) date.style.fontSize = `${newDateFontSize}px`;
+    });
+
+    // Grid boyutlarını güncellemek için min genişliği de artır
+    const newsList = document.getElementById('news-list');
+    const baseMinWidth = 160; // Varsayılan min genişlik
+    const newMinWidth = baseMinWidth + (sizeLevel * heightIncrement);
+    newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
+}
+
+// Boyut artırma ve azaltma butonları
+document.getElementById('increase-size').addEventListener('click', () => {
+    if (sizeLevel < 2) { // Maksimum 2 seviyesine kadar artır
+        sizeLevel++;
+        updateNewsSize();
+    }
+});
+
+document.getElementById('decrease-size').addEventListener('click', () => {
+    if (sizeLevel > -2) { // Minimum -2 seviyesine kadar azalt
+        sizeLevel--;
+        updateNewsSize();
+    }
 });
 
 // RSS'ten haberleri çek
@@ -402,6 +454,9 @@ function renderNews() {
     });
 
     lastRenderedNewsCount = displayedNewsCount;
+
+    // Boyutları güncelle
+    updateNewsSize();
 
     console.log(`Total news: ${allNews.length}, Displayed news: ${displayedNewsCount}, Last rendered: ${lastRenderedNewsCount}`);
 }

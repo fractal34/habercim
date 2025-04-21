@@ -66,6 +66,35 @@ body {
     white-space: nowrap;
     border-top: 1px solid #ff6a36;
     border-bottom: 1px solid #d13700;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.size-controls {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+}
+
+.size-btn {
+    background-color: #333;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 15px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    outline: none;
+}
+
+.size-btn:hover {
+    background-color: #555;
+}
+
+.size-btn:active {
+    transform: scale(0.98);
 }
 
 .category-source-menu {
