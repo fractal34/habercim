@@ -104,14 +104,6 @@ closeMenuBtn.addEventListener('click', () => {
     mobileMenu.classList.remove('active');
 });
 
-// Ayarlar Menüsü Kontrolü
-const settingsMenu = document.getElementById('settings-menu');
-const settingsBtn = document.getElementById('settings-btn');
-
-settingsBtn.addEventListener('click', () => {
-    settingsMenu.classList.toggle('active');
-});
-
 // Kategorileri sıfırlama fonksiyonu
 function resetCategories() {
     // Sadece "Son Dakika" kategorisini ve "Milliyet" kaynağını aktif yap
@@ -764,7 +756,7 @@ function showNewsDetail(news) {
         newsDetail.innerHTML = `
             <iframe src="${displayUrl}" frameborder="0" style="width: 100%; height: 100%;"
                 onload="console.log('Iframe loaded successfully: ${displayUrl}')"
-                onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde gösterilemiyor: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
+                onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde göster: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
             </iframe>
         `;
     }
