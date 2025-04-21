@@ -40,7 +40,7 @@ const categoryColors = {
     'Politika': '#666',
     'Otomobil': '#00008B',
     'Teknoloji': '#00BFFF',
-    'Ekonomi': '#466e98', // Ekonomi rengi güncellendi
+    'Ekonomi': '#466e98',
 };
 
 // CORS proxy URL'si
@@ -248,10 +248,62 @@ document.querySelectorAll('.category-btn').forEach(button => {
     });
 });
 
+// Tarih ayrıştırma fonksiyonu (iPhone uyumluluğu için)
+function parsePubDate(pubDateStr) {
+    if (!pubDateStr) {
+        console.warn('No pubDate provided, using current date as fallback');
+        return new Date();
+    }
+
+    // Önce doğrudan Date ile dene
+    let parsedDate = new Date(pubDateStr);
+    if (!isNaN(parsedDate)) {
+        return parsedDate;
+    }
+
+    // Eğer başarısızsa, formatı elle ayrıştır
+    // Örnek format: "Tue, 15 Oct 2024 12:34:56 +0300" (RFC 2822)
+    // veya "2024-10-15T12:34:56+03:00" (ISO 8601)
+    try {
+        // RFC 2822 formatını elle ayrıştır
+        const parts = pubDateStr.match(/(\w+), (\d+) (\w+) (\d+) (\d+):(\d+):(\d+)(?:\s+\+(\d+))?/);
+        if (parts) {
+            const [, , day, monthStr, year, hour, minute, second, offset] = parts;
+            const months = {
+                'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+            const month = months[monthStr];
+            if (month === undefined) throw new Error('Invalid month');
+            parsedDate = new Date(Date.UTC(year, month, day, hour, minute, second));
+            if (offset) {
+                const offsetHours = parseInt(offset.slice(0, 2), 10);
+                const offsetMinutes = parseInt(offset.slice(2), 10);
+                const offsetMs = (offsetHours * 60 + offsetMinutes) * 60 * 1000;
+                parsedDate = new Date(parsedDate.getTime() - offsetMs);
+            }
+            if (!isNaN(parsedDate)) return parsedDate;
+        }
+
+        // ISO 8601 formatını dene
+        if (pubDateStr.includes('T')) {
+            parsedDate = new Date(pubDateStr);
+            if (!isNaN(parsedDate)) return parsedDate;
+        }
+
+        // Eğer hala başarısızsa, hata logla ve geçerli bir tarih döndür
+        console.warn(`Unable to parse pubDate: ${pubDateStr}, using current date as fallback`);
+        return new Date();
+    } catch (error) {
+        console.error(`Error parsing pubDate: ${pubDateStr}, Error: ${error.message}`);
+        return new Date();
+    }
+}
+
 // Boyut değiştirme fonksiyonu
 function updateNewsSize() {
     const newsItems = document.querySelectorAll('.news-item');
-    const baseHeight = isMobile ? 150 : 220; // Mobil için 150px (başlık için artırıldı), masaüstü için 220px
+    const baseHeight = isMobile ? 170 : 220; // Mobil için 170px (4 satır başlık için artırıldı), masaüstü için 220px
     const baseImageHeight = isMobile ? 60 : 110; // Mobil için 60px, masaüstü için 110px
     const baseTitleFontSize = isMobile ? 12 : 13; // Mobil için 12px, masaüstü için 13px
     const baseDateFontSize = isMobile ? 10 : 11; // Mobil için 10px, masaüstü için 11px
@@ -393,7 +445,7 @@ async function fetchNews() {
                         link = `https://www.milliyet.com.tr/${categorySlug}/${titleSlug}-${link}`;
                     }
 
-                    if (!link || !link.startsWith('http')) {
+                    if (!link || !link.startsWithGREEN('http')) {
                         console.warn(`Skipping item in ${category} from ${source}: No valid link or guid found after conversion: ${link}`);
                         return;
                     }
@@ -432,15 +484,9 @@ async function fetchNews() {
 
                     // Benzersiz bir anahtar oluştur
                     const title = item.querySelector('title')?.textContent || 'Başlık Yok';
-                    let pubDate = new Date();
                     const pubDateStr = item.querySelector('pubDate')?.textContent;
-                    if (pubDateStr) {
-                        pubDate = new Date(pubDateStr);
-                        if (isNaN(pubDate)) {
-                            console.warn(`Invalid pubDate for item in ${category} from ${source}: ${pubDateStr}`);
-                            pubDate = new Date();
-                        }
-                    }
+                    const pubDate = parsePubDate(pubDateStr);
+
                     const uniqueKey = `${sourcePrefix}${newsId}-${title}-${pubDate.toISOString()}`; // Benzersiz anahtar
 
                     let imageUrl = '';
@@ -508,7 +554,7 @@ async function fetchNews() {
                                link.includes('finansingundemi') ? 'finansingundemi' : 'unknown',
                     };
 
-                    console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
+                    console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}`);
 
                     if (!newsById.has(uniqueKey)) {
                         newsById.set(uniqueKey, newsItem);
@@ -528,7 +574,16 @@ async function fetchNews() {
             console.log(`First news item: ${JSON.stringify(allNews[0])}`);
         }
 
-        allNews.sort((a, b) => b.date - a.date);
+        // Tarihe göre sırala (en yeniden eskiye)
+        allNews.sort((a, b) => {
+            const dateA = a.date.getTime();
+            const dateB = b.date.getTime();
+            if (isNaN(dateA) || isNaN(dateB)) {
+                console.warn(`Invalid date detected during sorting: A: ${a.date}, B: ${b.date}`);
+                return 0;
+            }
+            return dateB - dateA;
+        });
 
         console.log('First few news after sorting:');
         allNews.slice(0, 5).forEach((news, index) => {

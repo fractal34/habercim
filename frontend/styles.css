@@ -476,7 +476,7 @@ body {
     }
 
     .news-item {
-        height: 150px; /* Başlık için artırıldı */
+        height: 170px; /* 4 satır başlık için artırıldı */
     }
 
     .news-image {
@@ -485,7 +485,7 @@ body {
 
     .news-title {
         font-size: 12px;
-        -webkit-line-clamp: 3; /* 3 satıra çıkarıldı */
+        -webkit-line-clamp: 4; /* 4 satıra çıkarıldı */
     }
 
     .news-date {
@@ -516,7 +516,7 @@ body {
     }
 
     .news-item {
-        height: 130px;
+        height: 150px;
     }
 
     .news-image {
@@ -525,7 +525,7 @@ body {
 
     .news-title {
         font-size: 11px;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 4;
     }
 
     .news-date {
