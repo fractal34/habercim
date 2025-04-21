@@ -68,16 +68,24 @@ let displayedNewsCount = 50;
 let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
 let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
+let countdown = 180; // 180 saniyeden geriye sayacak
 
 // Boyut seviyesini takip etmek için değişken
 let sizeLevel = 0; // -2, -1, 0, 1, 2 gibi değerler alacak
 
-// Saat güncellemesi
+// Saat ve sayaç güncellemesi
 function updateClock() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     document.getElementById('clock').textContent = `${hours}:${minutes}`;
+    // Sayaç güncellemesi
+    document.getElementById('countdown').textContent = `${countdown}s`;
+    countdown--;
+    if (countdown < 0) {
+        countdown = 180; // 180 saniyeye sıfırla
+        fetchNews(); // Haberleri yenile
+    }
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -747,9 +755,3 @@ document.getElementById('news-list').addEventListener('scroll', function () {
 // İlk yükleme
 updateSourceBar();
 fetchNews();
-
-// Her 3 dakikada bir otomatik refresh
-setInterval(() => {
-    console.log('Auto-refreshing news...');
-    fetchNews();
-}, 3 * 60 * 1000); // 3 dakika (180 saniye)
