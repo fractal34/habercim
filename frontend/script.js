@@ -37,17 +37,18 @@ const categoryColors = {
     'Magazin': '#800080',
     'Dünya': '#ffa500',
     'Gündem': '#0000ff',
-    'Politika': '#666', // Daha açık gri
+    'Politika': '#666',
     'Otomobil': '#00008B',
     'Teknoloji': '#00BFFF',
-    'Ekonomi': '#A76545', // Deniz yeşili yerine koyu turuncu/kahverengi
+    'Ekonomi': '#466e98', // Dostumun belirttiği renk
 };
 
 // CORS proxy URL'si
 const corsProxy = 'https://habercim.vercel.app/api/proxy?url=';
 
-// Her kategoriden çekilecek maksimum haber sayısı
-const MAX_NEWS_PER_CATEGORY = 50;
+// Her kategoriden çekilecek maksimum haber sayısı (Mobil için 10, masaüstü için 50)
+const isMobile = window.innerWidth <= 768;
+const MAX_NEWS_PER_CATEGORY = isMobile ? 10 : 50;
 
 // Seçili kategoriler (varsayılan olarak Son Dakika seçili)
 let selectedCategories = ['Son Dakika'];
@@ -80,25 +81,60 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Kaynak seçim barını güncelle
+// Hamburger Menü Kontrolü
+const mobileMenu = document.getElementById('mobile-menu');
+const hamburgerBtn = document.getElementById('hamburger-btn');
+const closeMenuBtn = document.getElementById('close-menu-btn');
+
+hamburgerBtn.addEventListener('click', () => {
+    mobileMenu.classList.add('active');
+    updateSourceBar(); // Menü açıldığında kaynak barını güncelle
+});
+
+closeMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+});
+
+// Ayarlar Menüsü Kontrolü
+const settingsMenu = document.getElementById('settings-menu');
+const settingsBtn = document.getElementById('settings-btn');
+
+settingsBtn.addEventListener('click', () => {
+    settingsMenu.classList.toggle('active');
+});
+
+// Kaynak seçim barını güncelle (hem masaüstü hem mobil için)
 function updateSourceBar() {
     const sourceMenu = document.querySelector('.category-source-menu');
-    // "KAYNAKLAR" kısmını koru
+    const mobileCategories = document.getElementById('mobile-categories');
+
+    // Masaüstü için kaynak barını güncelle
     sourceMenu.innerHTML = '<nav class="category-source-title">KAYNAKLAR</nav>';
+    // Mobil için menüyü güncelle
+    mobileCategories.innerHTML = '';
 
     // Seçili kategorilere göre kaynakları kategori başlıklarıyla ekle
     selectedCategories.forEach(category => {
         const sources = categoryRssUrls[category];
         if (!sources) return;
 
-        // Kategori başlığını ekle (örneğin "SON DAKİKA:")
+        // Masaüstü: Kategori başlığı
         const categoryTitle = document.createElement('span');
-        categoryTitle.className = 'category-source-title'; // Aynı class'ı kullan
-        categoryTitle.textContent = ` - ${category.toUpperCase()}: `; // Çizgiden sonra boşluk
+        categoryTitle.className = 'category-source-title';
+        categoryTitle.textContent = ` - ${category.toUpperCase()}: `;
         sourceMenu.appendChild(categoryTitle);
+
+        // Mobil: Kategori başlığı
+        const mobileCategoryDiv = document.createElement('div');
+        mobileCategoryDiv.className = 'mobile-category-item';
+        const mobileCategoryTitle = document.createElement('span');
+        mobileCategoryTitle.className = 'mobile-category-title';
+        mobileCategoryTitle.textContent = category.toUpperCase();
+        mobileCategoryDiv.appendChild(mobileCategoryTitle);
 
         // Kategoriye ait kaynakları ekle
         Object.keys(sources).forEach(source => {
+            // Masaüstü için kaynaklar
             const label = document.createElement('label');
             label.className = 'source-item';
             const checkbox = document.createElement('input');
@@ -121,7 +157,33 @@ function updateSourceBar() {
             label.appendChild(checkbox);
             label.appendChild(document.createTextNode(source));
             sourceMenu.appendChild(label);
+
+            // Mobil için kaynaklar
+            const mobileLabel = document.createElement('label');
+            mobileLabel.className = 'mobile-source-item';
+            const mobileCheckbox = document.createElement('input');
+            mobileCheckbox.type = 'checkbox';
+            mobileCheckbox.checked = selectedSources[category].includes(source);
+            mobileCheckbox.dataset.category = category;
+            mobileCheckbox.dataset.source = source;
+
+            mobileCheckbox.addEventListener('change', () => {
+                if (mobileCheckbox.checked) {
+                    if (!selectedSources[category].includes(source)) {
+                        selectedSources[category].push(source);
+                    }
+                } else {
+                    selectedSources[category] = selectedSources[category].filter(s => s !== source);
+                }
+                fetchNews();
+            });
+
+            mobileLabel.appendChild(mobileCheckbox);
+            mobileLabel.appendChild(document.createTextNode(source));
+            mobileCategoryDiv.appendChild(mobileLabel);
         });
+
+        mobileCategories.appendChild(mobileCategoryDiv);
     });
 }
 
@@ -151,10 +213,10 @@ document.querySelectorAll('.category-btn').forEach(button => {
 // Boyut değiştirme fonksiyonu
 function updateNewsSize() {
     const newsItems = document.querySelectorAll('.news-item');
-    const baseHeight = 220; // Varsayılan yükseklik
-    const baseImageHeight = 110; // Varsayılan resim yüksekliği
-    const baseTitleFontSize = 13; // Varsayılan başlık yazı boyutu
-    const baseDateFontSize = 11; // Varsayılan tarih yazı boyutu
+    const baseHeight = isMobile ? 60 : 220; // Mobil için 60px, masaüstü için 220px
+    const baseImageHeight = isMobile ? 60 : 110; // Mobil için 60px, masaüstü için 110px
+    const baseTitleFontSize = isMobile ? 14 : 13; // Mobil için 14px, masaüstü için 13px
+    const baseDateFontSize = isMobile ? 12 : 11; // Mobil için 12px, masaüstü için 11px
 
     const heightIncrement = 10; // Her seviyede yükseklik artışı
     const fontSizeIncrement = 1; // Her seviyede yazı boyutu artışı
@@ -170,28 +232,49 @@ function updateNewsSize() {
         const title = item.querySelector('.news-title');
         const date = item.querySelector('.news-date');
 
-        if (image) image.style.height = `${newImageHeight}px`;
+        if (image) {
+            image.style.height = `${newImageHeight}px`;
+            if (isMobile) {
+                image.style.width = `${newImageHeight}px`; // Mobil için kare resim
+            }
+        }
         if (title) title.style.fontSize = `${newTitleFontSize}px`;
         if (date) date.style.fontSize = `${newDateFontSize}px`;
     });
 
     // Grid boyutlarını güncellemek için min genişliği de artır
     const newsList = document.getElementById('news-list');
-    const baseMinWidth = 160; // Varsayılan min genişlik
+    const baseMinWidth = isMobile ? 0 : 160; // Mobil için gerek yok, masaüstü için 160px
     const newMinWidth = baseMinWidth + (sizeLevel * heightIncrement);
-    newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
+    if (!isMobile) {
+        newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
+    }
 }
 
-// Boyut artırma ve azaltma butonları
+// Boyut artırma ve azaltma butonları (Masaüstü ve Mobil)
 document.getElementById('increase-size').addEventListener('click', () => {
-    if (sizeLevel < 2) { // Maksimum 2 seviyesine kadar artır
+    if (sizeLevel < 2) {
         sizeLevel++;
         updateNewsSize();
     }
 });
 
 document.getElementById('decrease-size').addEventListener('click', () => {
-    if (sizeLevel > -2) { // Minimum -2 seviyesine kadar azalt
+    if (sizeLevel > -2) {
+        sizeLevel--;
+        updateNewsSize();
+    }
+});
+
+document.getElementById('increase-size-mobile').addEventListener('click', () => {
+    if (sizeLevel < 2) {
+        sizeLevel++;
+        updateNewsSize();
+    }
+});
+
+document.getElementById('decrease-size-mobile').addEventListener('click', () => {
+    if (sizeLevel > -2) {
         sizeLevel--;
         updateNewsSize();
     }
@@ -368,7 +451,6 @@ async function fetchNews() {
                         }
                     }
                     if (!imageUrl) {
-                        // Finansingundemi için <image> etiketini kontrol et
                         const imageElement = item.querySelector('image')?.textContent || '';
                         if (imageElement) {
                             imageUrl = imageElement;
@@ -462,11 +544,24 @@ function renderNews() {
         const newsItem = document.createElement('div');
         newsItem.className = 'news-item';
         newsItem.style.backgroundColor = color;
-        newsItem.innerHTML = `
-            <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
-            <div class="news-title" style="background-color: ${color};">${news.title}</div>
-            <div class="news-date">${formattedDate}</div>
-        `;
+        if (isMobile) {
+            newsItem.classList.add('mobile-news-item');
+            newsItem.innerHTML = `
+                <div class="news-content">
+                    <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
+                    <div class="news-text">
+                        <div class="news-title" style="background-color: transparent;">${news.title}</div>
+                        <div class="news-date">${formattedDate}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            newsItem.innerHTML = `
+                <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
+                <div class="news-title" style="background-color: ${color};">${news.title}</div>
+                <div class="news-date">${formattedDate}</div>
+            `;
+        }
         newsItem.addEventListener('click', () => showNewsDetail(news));
         newsList.appendChild(newsItem);
     });
@@ -481,25 +576,43 @@ function renderNews() {
 
 // Haber detaylarını göster
 function showNewsDetail(news) {
-    const newsDetail = document.getElementById('news-detail');
     let url = news.link;
     console.log(`Original URL: ${url}, Source: ${news.source}`);
 
     if (!url || !url.startsWith('http')) {
         console.error(`Invalid URL: ${url}`);
-        newsDetail.innerHTML = `<p>Geçersiz URL: ${url}</p>`;
         return;
     }
 
     const displayUrl = url;
     console.log(`Loading URL: ${displayUrl}`);
 
-    newsDetail.innerHTML = `
-        <iframe src="${displayUrl}" frameborder="0" style="width: 100%; height: 100%;"
-            onload="console.log('Iframe loaded successfully: ${displayUrl}')"
-            onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde gösterilemiyor: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
-        </iframe>
-    `;
+    if (isMobile) {
+        const newsDetailOverlay = document.getElementById('news-detail-overlay');
+        newsDetailOverlay.innerHTML = `
+            <button id="close-overlay-btn" class="close-overlay-btn">← Geri</button>
+            <iframe id="news-iframe-overlay" name="news-iframe-overlay" frameborder="0" style="width:100%; height:100%;"
+                onload="console.log('Iframe loaded successfully: ${displayUrl}')"
+                onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde gösterilemiyor: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
+            </iframe>
+        `;
+        const iframe = newsDetailOverlay.querySelector('iframe');
+        iframe.src = displayUrl;
+        newsDetailOverlay.classList.add('active');
+
+        const closeOverlayBtn = document.getElementById('close-overlay-btn');
+        closeOverlayBtn.addEventListener('click', () => {
+            newsDetailOverlay.classList.remove('active');
+        });
+    } else {
+        const newsDetail = document.getElementById('news-detail');
+        newsDetail.innerHTML = `
+            <iframe src="${displayUrl}" frameborder="0" style="width: 100%; height: 100%;"
+                onload="console.log('Iframe loaded successfully: ${displayUrl}')"
+                onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde gösterilemiyor: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
+            </iframe>
+        `;
+    }
 }
 
 // Infinite Scroll
