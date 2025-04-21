@@ -555,6 +555,11 @@ async function fetchNews() {
                         imageUrl = 'https://via.placeholder.com/150'; // Placeholder
                     }
 
+                    const currentTime = new Date();
+                    const tenMinutes = 10 * 60 * 1000; // 10 dakika milisaniye cinsinden
+                    const isNew = pubDate > lastFetchTime;
+                    const newLabelUntil = isNew ? new Date(currentTime.getTime() + tenMinutes) : null;
+
                     const newsItem = {
                         categories: [category],
                         title,
@@ -568,10 +573,10 @@ async function fetchNews() {
                                link.includes('otoaktuel') ? 'otoaktuel' : 
                                link.includes('mynet') ? 'mynet' : 
                                link.includes('finansingundemi') ? 'finansingundemi' : 'unknown',
-                        isNew: pubDate > lastFetchTime && (new Date() - pubDate) < 10 * 60 * 1000 // 10 dakika içinde yayınlanmışsa yeni
+                        newLabelUntil: newLabelUntil // 10 dakika boyunca "Yeni" etiketi göster
                     };
 
-                    console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}`);
+                    console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}, New Until: ${newsItem.newLabelUntil}`);
 
                     if (!newsById.has(uniqueKey)) {
                         newsById.set(uniqueKey, newsItem);
@@ -580,6 +585,10 @@ async function fetchNews() {
                         const existing = newsById.get(uniqueKey);
                         if (!existing.categories.includes(category)) {
                             existing.categories.push(category);
+                        }
+                        // Eğer mevcut haber zaten varsa ve yeni geldiyse newLabelUntil güncelle
+                        if (isNew) {
+                            existing.newLabelUntil = new Date(currentTime.getTime() + tenMinutes);
                         }
                     }
                 });
@@ -607,7 +616,7 @@ async function fetchNews() {
 
         console.log('First few news after sorting:');
         allNews.slice(0, 5).forEach((news, index) => {
-            console.log(`News ${index + 1}: ${news.title}, Date: ${news.date}, Categories: ${news.categories}, Link: ${news.link}, Source: ${news.source}`);
+            console.log(`News ${index + 1}: ${news.title}, Date: ${news.date}, Categories: ${news.categories}, Link: ${news.link}, Source: ${news.source}, New Until: ${news.newLabelUntil}`);
         });
 
         renderNews();
@@ -635,6 +644,8 @@ function renderNews() {
         return;
     }
 
+    const now = new Date();
+
     newsToShow.forEach(news => {
         const categories = news.categories;
         const primaryCategory = categories[0];
@@ -647,6 +658,8 @@ function renderNews() {
             minute: '2-digit',
         });
 
+        const isNew = news.newLabelUntil && now < news.newLabelUntil;
+
         const newsItem = document.createElement('div');
         newsItem.className = 'news-item';
         newsItem.style.backgroundColor = color;
@@ -654,14 +667,14 @@ function renderNews() {
             newsItem.classList.add('mobile-news-item');
             newsItem.innerHTML = `
                 <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
-                ${news.isNew ? '<div class="news-new">Yeni</div>' : ''}
+                ${isNew ? '<div class="news-new">Yeni</div>' : ''}
                 <div class="news-title" style="background-color: ${color};">${news.title}</div>
                 <div class="news-date">${formattedDate}</div>
             `;
         } else {
             newsItem.innerHTML = `
                 <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
-                ${news.isNew ? '<div class="news-new">Yeni</div>' : ''}
+                ${isNew ? '<div class="news-new">Yeni</div>' : ''}
                 <div class="news-title" style="background-color: ${color};">${news.title}</div>
                 <div class="news-date">${formattedDate}</div>
             `;
