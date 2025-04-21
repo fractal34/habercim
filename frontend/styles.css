@@ -66,6 +66,7 @@ body {
     color: white;
     cursor: pointer;
     font-size: 14px;
+    display: none; /* Varsayılan olarak gizli */
 }
 
 .settings-btn:hover {
@@ -322,11 +323,11 @@ body {
     left: 5px;
     background-color: #ff0000;
     color: white;
-    font-size: 12px; /* 10px'ten 12px'e büyüttük */
+    font-size: 12px;
     padding: 2px 5px;
     border-radius: 3px;
     z-index: 1;
-    display: block; /* Hover olmadan otomatik görünmesi için */
+    display: block;
 }
 
 /* Mobil Menü Stilleri */
@@ -485,11 +486,26 @@ body {
 }
 
 @media (max-width: 768px) {
-    .hamburger-btn, .settings-btn {
+    .hamburger-btn {
         display: block;
     }
 
-    .category-menu, .category-source-menu, .size-controls {
+    .category-menu {
+        display: flex; /* Mobil'de category-menu görünür olacak */
+    }
+
+    .category-bar {
+        display: none; /* Kategori butonları mobil'de görünmeyecek */
+    }
+
+    .size-controls {
+        display: flex; /* + ve - tuşları mobil'de görünür olacak */
+        margin-left: 0; /* Mobil'de sola hizalanacak */
+        justify-content: center; /* Ortalanmış olacak */
+        width: 100%;
+    }
+
+    .category-source-menu {
         display: none;
     }
 
@@ -540,15 +556,15 @@ body {
     #clock, .language {
         font-size: 14px;
     }
-
-    .settings-btn {
-        display: inline-block; /* Mobil'de görünür */
-    }
 }
 
 @media (min-width: 769px) {
-    .settings-btn {
-        display: none; /* PC'de gizli */
+    .settings-menu {
+        display: none; /* Varsayılan olarak gizli */
+    }
+
+    .settings-menu.active {
+        display: flex; /* Aktif olduğunda görünür */
     }
 }
 
@@ -574,5 +590,10 @@ body {
 
     .news-date {
         font-size: 9px;
+    }
+
+    .size-btn {
+        padding: 6px 10px; /* Mobil'de daha küçük butonlar */
+        font-size: 14px;
     }
 }

@@ -376,7 +376,7 @@ function updateNewsSize() {
     newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
 }
 
-// Boyut artırma ve azaltma butonları (Masaüstü ve Mobil)
+// Boyut artırma ve azaltma butonları (Masaüstü ve Mobil için ortak butonlar)
 document.getElementById('increase-size').addEventListener('click', () => {
     if (sizeLevel < 2) {
         sizeLevel++;
@@ -385,20 +385,6 @@ document.getElementById('increase-size').addEventListener('click', () => {
 });
 
 document.getElementById('decrease-size').addEventListener('click', () => {
-    if (sizeLevel > -2) {
-        sizeLevel--;
-        updateNewsSize();
-    }
-});
-
-document.getElementById('increase-size-mobile').addEventListener('click', () => {
-    if (sizeLevel < 2) {
-        sizeLevel++;
-        updateNewsSize();
-    }
-});
-
-document.getElementById('decrease-size-mobile').addEventListener('click', () => {
     if (sizeLevel > -2) {
         sizeLevel--;
         updateNewsSize();
