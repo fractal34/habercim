@@ -40,7 +40,7 @@ const categoryColors = {
     'Politika': '#666',
     'Otomobil': '#00008B',
     'Teknoloji': '#00BFFF',
-    'Ekonomi': '#466e98', // Dostumun belirttiği renk
+    'Ekonomi': '#466e98', // Ekonomi rengi güncellendi
 };
 
 // CORS proxy URL'si
@@ -113,28 +113,91 @@ function updateSourceBar() {
     // Mobil için menüyü güncelle
     mobileCategories.innerHTML = '';
 
-    // Seçili kategorilere göre kaynakları kategori başlıklarıyla ekle
+    // Tüm kategoriler için başlık ve checkbox ekle (mobil menüde)
+    const allCategories = Object.keys(categoryRssUrls);
+    const categoryPairs = [];
+    for (let i = 0; i < allCategories.length; i += 2) {
+        categoryPairs.push(allCategories.slice(i, i + 2));
+    }
+
+    categoryPairs.forEach(pair => {
+        const categoryRow = document.createElement('div');
+        categoryRow.className = 'category-row';
+
+        pair.forEach(category => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'mobile-category-item';
+
+            // Kategori checkbox'ı
+            const categoryLabel = document.createElement('label');
+            categoryLabel.className = 'mobile-category-label';
+            const categoryCheckbox = document.createElement('input');
+            categoryCheckbox.type = 'checkbox';
+            categoryCheckbox.checked = selectedCategories.includes(category);
+            categoryCheckbox.dataset.category = category;
+
+            categoryCheckbox.addEventListener('change', () => {
+                if (categoryCheckbox.checked) {
+                    if (!selectedCategories.includes(category)) {
+                        selectedCategories.push(category);
+                    }
+                } else {
+                    selectedCategories = selectedCategories.filter(cat => cat !== category);
+                }
+                updateSourceBar();
+                fetchNews();
+            });
+
+            categoryLabel.appendChild(categoryCheckbox);
+            categoryLabel.appendChild(document.createTextNode(category.toUpperCase()));
+            categoryDiv.appendChild(categoryLabel);
+
+            // Kategoriye ait kaynaklar
+            const sources = categoryRssUrls[category];
+            if (sources) {
+                Object.keys(sources).forEach(source => {
+                    const sourceLabel = document.createElement('label');
+                    sourceLabel.className = 'mobile-source-item';
+                    const sourceCheckbox = document.createElement('input');
+                    sourceCheckbox.type = 'checkbox';
+                    sourceCheckbox.checked = selectedSources[category].includes(source);
+                    sourceCheckbox.dataset.category = category;
+                    sourceCheckbox.dataset.source = source;
+
+                    sourceCheckbox.addEventListener('change', () => {
+                        if (sourceCheckbox.checked) {
+                            if (!selectedSources[category].includes(source)) {
+                                selectedSources[category].push(source);
+                            }
+                        } else {
+                            selectedSources[category] = selectedSources[category].filter(s => s !== source);
+                        }
+                        fetchNews();
+                    });
+
+                    sourceLabel.appendChild(sourceCheckbox);
+                    sourceLabel.appendChild(document.createTextNode(source));
+                    categoryDiv.appendChild(sourceLabel);
+                });
+            }
+
+            categoryRow.appendChild(categoryDiv);
+        });
+
+        mobileCategories.appendChild(categoryRow);
+    });
+
+    // Masaüstü için sadece seçili kategorilerin kaynaklarını göster
     selectedCategories.forEach(category => {
         const sources = categoryRssUrls[category];
         if (!sources) return;
 
-        // Masaüstü: Kategori başlığı
         const categoryTitle = document.createElement('span');
         categoryTitle.className = 'category-source-title';
         categoryTitle.textContent = ` - ${category.toUpperCase()}: `;
         sourceMenu.appendChild(categoryTitle);
 
-        // Mobil: Kategori başlığı
-        const mobileCategoryDiv = document.createElement('div');
-        mobileCategoryDiv.className = 'mobile-category-item';
-        const mobileCategoryTitle = document.createElement('span');
-        mobileCategoryTitle.className = 'mobile-category-title';
-        mobileCategoryTitle.textContent = category.toUpperCase();
-        mobileCategoryDiv.appendChild(mobileCategoryTitle);
-
-        // Kategoriye ait kaynakları ekle
         Object.keys(sources).forEach(source => {
-            // Masaüstü için kaynaklar
             const label = document.createElement('label');
             label.className = 'source-item';
             const checkbox = document.createElement('input');
@@ -157,33 +220,7 @@ function updateSourceBar() {
             label.appendChild(checkbox);
             label.appendChild(document.createTextNode(source));
             sourceMenu.appendChild(label);
-
-            // Mobil için kaynaklar
-            const mobileLabel = document.createElement('label');
-            mobileLabel.className = 'mobile-source-item';
-            const mobileCheckbox = document.createElement('input');
-            mobileCheckbox.type = 'checkbox';
-            mobileCheckbox.checked = selectedSources[category].includes(source);
-            mobileCheckbox.dataset.category = category;
-            mobileCheckbox.dataset.source = source;
-
-            mobileCheckbox.addEventListener('change', () => {
-                if (mobileCheckbox.checked) {
-                    if (!selectedSources[category].includes(source)) {
-                        selectedSources[category].push(source);
-                    }
-                } else {
-                    selectedSources[category] = selectedSources[category].filter(s => s !== source);
-                }
-                fetchNews();
-            });
-
-            mobileLabel.appendChild(mobileCheckbox);
-            mobileLabel.appendChild(document.createTextNode(source));
-            mobileCategoryDiv.appendChild(mobileLabel);
         });
-
-        mobileCategories.appendChild(mobileCategoryDiv);
     });
 }
 
@@ -213,10 +250,10 @@ document.querySelectorAll('.category-btn').forEach(button => {
 // Boyut değiştirme fonksiyonu
 function updateNewsSize() {
     const newsItems = document.querySelectorAll('.news-item');
-    const baseHeight = isMobile ? 60 : 220; // Mobil için 60px, masaüstü için 220px
+    const baseHeight = isMobile ? 120 : 220; // Mobil için 120px, masaüstü için 220px
     const baseImageHeight = isMobile ? 60 : 110; // Mobil için 60px, masaüstü için 110px
-    const baseTitleFontSize = isMobile ? 14 : 13; // Mobil için 14px, masaüstü için 13px
-    const baseDateFontSize = isMobile ? 12 : 11; // Mobil için 12px, masaüstü için 11px
+    const baseTitleFontSize = isMobile ? 12 : 13; // Mobil için 12px, masaüstü için 13px
+    const baseDateFontSize = isMobile ? 10 : 11; // Mobil için 10px, masaüstü için 11px
 
     const heightIncrement = 10; // Her seviyede yükseklik artışı
     const fontSizeIncrement = 1; // Her seviyede yazı boyutu artışı
@@ -232,23 +269,16 @@ function updateNewsSize() {
         const title = item.querySelector('.news-title');
         const date = item.querySelector('.news-date');
 
-        if (image) {
-            image.style.height = `${newImageHeight}px`;
-            if (isMobile) {
-                image.style.width = `${newImageHeight}px`; // Mobil için kare resim
-            }
-        }
+        if (image) image.style.height = `${newImageHeight}px`;
         if (title) title.style.fontSize = `${newTitleFontSize}px`;
         if (date) date.style.fontSize = `${newDateFontSize}px`;
     });
 
     // Grid boyutlarını güncellemek için min genişliği de artır
     const newsList = document.getElementById('news-list');
-    const baseMinWidth = isMobile ? 0 : 160; // Mobil için gerek yok, masaüstü için 160px
+    const baseMinWidth = isMobile ? 100 : 160; // Mobil için 100px, masaüstü için 160px
     const newMinWidth = baseMinWidth + (sizeLevel * heightIncrement);
-    if (!isMobile) {
-        newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
-    }
+    newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
 }
 
 // Boyut artırma ve azaltma butonları (Masaüstü ve Mobil)
@@ -547,13 +577,9 @@ function renderNews() {
         if (isMobile) {
             newsItem.classList.add('mobile-news-item');
             newsItem.innerHTML = `
-                <div class="news-content">
-                    <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
-                    <div class="news-text">
-                        <div class="news-title" style="background-color: transparent;">${news.title}</div>
-                        <div class="news-date">${formattedDate}</div>
-                    </div>
-                </div>
+                <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
+                <div class="news-title" style="background-color: ${color};">${news.title}</div>
+                <div class="news-date">${formattedDate}</div>
             `;
         } else {
             newsItem.innerHTML = `
