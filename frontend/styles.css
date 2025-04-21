@@ -99,7 +99,7 @@ body {
 .source-item {
     display: flex;
     align-items: center;
-    margin-right: 15px;
+    margin-right: 2px;
     color: white;
     font-size: 14px;
     text-align: left; /* Yazıları sola hizalar */
