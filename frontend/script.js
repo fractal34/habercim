@@ -40,7 +40,7 @@ const categoryColors = {
     'Politika': '#666', // Daha açık gri
     'Otomobil': '#00008B',
     'Teknoloji': '#00BFFF',
-    'Ekonomi': '#2E8B57', // Deniz yeşili, ekonomi için uygun ve beyaz yazılarla uyumlu
+    'Ekonomi': '#A76545', // Deniz yeşili yerine koyu turuncu/kahverengi
 };
 
 // CORS proxy URL'si
@@ -365,6 +365,14 @@ async function fetchNews() {
                         if (ipImage) {
                             imageUrl = ipImage;
                             console.log(`ipimage found for Mynet: ${imageUrl}`);
+                        }
+                    }
+                    if (!imageUrl) {
+                        // Finansingundemi için <image> etiketini kontrol et
+                        const imageElement = item.querySelector('image')?.textContent || '';
+                        if (imageElement) {
+                            imageUrl = imageElement;
+                            console.log(`Image found in <image> tag for ${source}: ${imageUrl}`);
                         }
                     }
                     if (!imageUrl) {

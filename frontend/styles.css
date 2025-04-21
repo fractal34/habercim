@@ -180,7 +180,7 @@ body {
 .category-btn.active[data-category="Politika"] { background-color: #666; color: white; }
 .category-btn.active[data-category="Otomobil"] { background-color: #00008B; color: white; }
 .category-btn.active[data-category="Teknoloji"] { background-color: #00BFFF; color: white; }
-.category-btn.active[data-category="Ekonomi"] { background-color: #2E8B57; color: white; }
+.category-btn.active[data-category="Ekonomi"] { background-color: #A76545; color: white; }
 
 .main-content {
     display: flex;
