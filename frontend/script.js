@@ -445,7 +445,7 @@ async function fetchNews() {
                         link = `https://www.milliyet.com.tr/${categorySlug}/${titleSlug}-${link}`;
                     }
 
-                    if (!link || !link.startsWithGREEN('http')) {
+                    if (!link || !link.startsWith('http')) {
                         console.warn(`Skipping item in ${category} from ${source}: No valid link or guid found after conversion: ${link}`);
                         return;
                     }
