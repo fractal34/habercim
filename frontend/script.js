@@ -290,18 +290,6 @@ async function fetchNews() {
                         if (enclosure) {
                             imageUrl = enclosure.getAttribute('url') || '';
                             console.log(`Enclosure image found for ${source}: ${imageUrl}`);
-                        } else if (link.includes('sabah.com.tr')) {
-                            console.log(`No enclosure image found for Sabah, checking other tags for link: ${link}`);
-                            // Sabah için description içinde resim olabilir mi kontrol et
-                            if (description) {
-                                const div = document.createElement('div');
-                                div.innerHTML = description;
-                                const img = div.querySelector('img');
-                                if (img) {
-                                    imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
-                                    console.log(`Image found in description for Sabah: ${imageUrl}`);
-                                }
-                            }
                         }
                     }
                     if (!imageUrl) {
@@ -324,11 +312,31 @@ async function fetchNews() {
                         }
                     }
                     if (!imageUrl && link.includes('sabah.com.tr')) {
-                        // Sabah için son çare: Thumbnail veya başka bir etiket var mı kontrol et
-                        const thumbnail = item.querySelector('thumbnail')?.textContent || '';
-                        if (thumbnail) {
-                            imageUrl = thumbnail;
-                            console.log(`Thumbnail found for Sabah: ${imageUrl}`);
+                        console.log(`Checking additional tags for Sabah image, link: ${link}`);
+                        // Sabah için description içinde daha derin kontrol
+                        if (description) {
+                            const div = document.createElement('div');
+                            div.innerHTML = description;
+                            const img = div.querySelector('img');
+                            if (img) {
+                                imageUrl = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
+                                console.log(`Image found in description for Sabah: ${imageUrl}`);
+                            } else {
+                                // HTML içeriğini daha dikkatli parse et
+                                const imgMatch = description.match(/<img[^>]+src=["'](.*?)["']/i);
+                                if (imgMatch && imgMatch[1]) {
+                                    imageUrl = imgMatch[1];
+                                    console.log(`Image found in description for Sabah via regex: ${imageUrl}`);
+                                }
+                            }
+                        }
+                        // Thumbnail kontrolü (yedek)
+                        if (!imageUrl) {
+                            const thumbnail = item.querySelector('thumbnail')?.getAttribute('url') || item.querySelector('thumbnail')?.textContent || '';
+                            if (thumbnail) {
+                                imageUrl = thumbnail;
+                                console.log(`Thumbnail found for Sabah: ${imageUrl}`);
+                            }
                         }
                     }
                     if (!imageUrl) {
