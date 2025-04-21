@@ -11,7 +11,7 @@ const categoryRssUrls = {
         'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml',
     },
     'Politika': {
-        'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/siyasetrss.xml',
+        'Mynet': 'https://www.mynet.com/haber/rss/kategori/politika/',
     },
     'Dünya': {
         'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/dunyarss.xml',
@@ -25,6 +25,10 @@ const categoryRssUrls = {
     'Teknoloji': {
         'Onedio': 'https://onedio.com/Publisher/publisher-teknoloji.rss',
     },
+    'Ekonomi': {
+        'Milliyet': 'https://www.milliyet.com.tr/rss/rssnew/ekonomi.xml',
+        'Finansingundemi': 'https://www.finansingundemi.com//rss',
+    },
 };
 
 const categoryColors = {
@@ -33,9 +37,10 @@ const categoryColors = {
     'Magazin': '#800080',
     'Dünya': '#ffa500',
     'Gündem': '#0000ff',
-    'Politika': '#333',
+    'Politika': '#666', // Daha açık gri
     'Otomobil': '#00008B',
     'Teknoloji': '#00BFFF',
+    'Ekonomi': '#2E8B57', // Deniz yeşili, ekonomi için uygun ve beyaz yazılarla uyumlu
 };
 
 // CORS proxy URL'si
@@ -302,6 +307,10 @@ async function fetchNews() {
                         const match = link.match(/(\d+)$/);
                         newsId = match ? match[0] : link;
                         sourcePrefix = 'mynet-';
+                    } else if (link.includes('finansingundemi.com')) {
+                        const match = link.match(/(\d+)$/);
+                        newsId = match ? match[0] : link;
+                        sourcePrefix = 'finansingundemi-';
                     } else {
                         newsId = link;
                         sourcePrefix = 'unknown-';
@@ -374,7 +383,8 @@ async function fetchNews() {
                                link.includes('haberturk') ? 'haberturk' : 
                                link.includes('onedio') ? 'onedio' : 
                                link.includes('otoaktuel') ? 'otoaktuel' : 
-                               link.includes('mynet') ? 'mynet' : 'unknown',
+                               link.includes('mynet') ? 'mynet' : 
+                               link.includes('finansingundemi') ? 'finansingundemi' : 'unknown',
                     };
 
                     console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}`);
