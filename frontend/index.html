@@ -3,70 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habercim - Haberler</title>
+    <title>Habercim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- Üst Menü -->
         <header class="header">
-            <div class="header-left">
+            <div class="header-top">
                 <button id="hamburger-btn" class="hamburger-btn">☰</button>
-                <h1>Habercim</h1>
-            </div>
-            <div class="header-right">
-                <span id="countdown">180s</span>
-                <span id="clock"></span>
-                <span class="language">TR ENG</span>
-                <div class="size-controls-mobile">
+                <a href="/" class="logo">HABERCIM</a>
+                <div class="header-right">
+                    <span id="countdown">180s</span>
+                    <span id="clock"></span>
+                    <span class="language">TR ENG</span>
                     <button id="increase-size-mobile" class="size-btn">+</button>
                     <button id="decrease-size-mobile" class="size-btn">-</button>
                 </div>
             </div>
+            <nav class="category-menu">
+                <button class="category-btn active" data-category="Son Dakika">SON DAKİKA</button>
+                <button class="category-btn" data-category="Gündem">GÜNDEM</button>
+                <button class="category-btn" data-category="Spor">SPOR</button>
+                <button class="category-btn" data-category="Magazin">MAGAZİN</button>
+                <button class="category-btn" data-category="Politika">POLİTİKA</button>
+                <button class="category-btn" data-category="Dünya">DÜNYA</button>
+                <button class="category-btn" data-category="Otomobil">OTOMOBİL</button>
+                <button class="category-btn" data-category="Teknoloji">TEKNOLOJİ</button>
+                <button class="category-btn" data-category="Ekonomi">EKONOMİ</button>
+                <div class="size-controls">
+                    <button id="reset-categories" class="settings-btn">Kategorileri Sıfırla</button>
+                    <button id="increase-size" class="size-btn">+</button>
+                    <button id="decrease-size" class="size-btn">-</button>
+                </div>
+            </nav>
+            <nav class="category-source-menu">
+                <!-- Kaynaklar JavaScript ile dinamik olarak eklenecek -->
+            </nav>
         </header>
 
-        <!-- Kategori Menüsü -->
-        <div class="category-menu">
-            <button class="category-btn" data-category="Son Dakika">Son Dakika</button>
-            <button class="category-btn" data-category="Gündem">Gündem</button>
-            <button class="category-btn" data-category="Spor">Spor</button>
-            <button class="category-btn" data-category="Magazin">Magazin</button>
-            <button class="category-btn" data-category="Dünya">Dünya</button>
-            <button class="category-btn" data-category="Politika">Politika</button>
-            <button class="category-btn" data-category="Otomobil">Otomobil</button>
-            <button class="category-btn" data-category="Teknoloji">Teknoloji</button>
-            <button class="category-btn" data-category="Ekonomi">Ekonomi</button>
-            <div class="size-controls">
-                <button id="increase-size" class="size-btn">+</button>
-                <button id="decrease-size" class="size-btn">-</button>
-                <button id="reset-categories" class="settings-btn">Kategorileri Sıfırla</button>
-            </div>
-        </div>
-
-        <!-- Kaynak Menüsü -->
-        <div class="category-source-menu"></div>
-
-        <!-- Ana İçerik -->
-        <main class="main-content">
-            <div id="news-list" class="news-list"></div>
-            <div id="news-detail" class="news-detail"></div>
-        </main>
-
-        <!-- Mobil Menü -->
+        <!-- Mobil Menü Overlay -->
         <div id="mobile-menu" class="mobile-menu">
             <div class="mobile-menu-header">
                 <button id="close-menu-btn" class="close-menu-btn">✖</button>
-                <h2>Kategoriler</h2>
             </div>
             <div id="mobile-categories" class="mobile-categories"></div>
             <div class="mobile-settings">
-                <button id="confirm-categories-mobile" class="settings-btn">Onayla</button>
                 <button id="reset-categories-mobile" class="settings-btn">Kategorileri Sıfırla</button>
             </div>
         </div>
 
-        <!-- Mobil Haber Detay Overlay -->
-        <div id="news-detail-overlay" class="news-detail-overlay"></div>
+        <!-- Ana İçerik -->
+        <main class="main-content">
+            <!-- Sol Taraf: Haber Listesi -->
+            <section class="news-list" id="news-list">
+                <!-- Haber kutuları JavaScript ile buraya eklenecek -->
+            </section>
+
+            <!-- Sağ Taraf: Haber Detayları (iframe) -->
+            <aside class="news-detail" id="news-detail">
+                <iframe id="news-iframe" name="news-iframe" frameborder="0" style="width:100%; height:100%;"></iframe>
+            </aside>
+
+            <!-- Mobil için Haber Detay Overlay -->
+            <div id="news-detail-overlay" class="news-detail-overlay">
+                <div class="header-frame">
+                    <button id="close-overlay-btn" class="close-overlay-btn">← Geri</button>
+                </div>
+                <iframe id="news-iframe-overlay" name="news-iframe-overlay" frameborder="0" style="width:100%; height:100%;"></iframe>
+            </div>
+        </main>
     </div>
 
     <script src="script.js"></script>

@@ -1,34 +1,38 @@
+/* Modernize Edilmiş CSS (1. versiyon baz alınarak güncellendi) */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
+    color: #333;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .container {
-    max-width: 1400px;
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-/* Header */
 .header {
+    background-color: #ff4500;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 10;
+}
+
+.header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #ff4500;
-    padding: 10px 20px;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 10px 25px;
 }
 
 .hamburger-btn {
@@ -38,10 +42,26 @@ body {
     color: white;
     font-size: 24px;
     cursor: pointer;
+    animation: bounce 1s infinite; /* Zıplama animasyonu */
 }
 
-.header h1 {
-    font-size: 24px;
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.logo {
+    font-size: 36px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
 }
 
 .header-right {
@@ -50,16 +70,23 @@ body {
     gap: 15px;
 }
 
-.size-controls-mobile {
-    display: flex;
-    gap: 5px; /* + ve - tuşları arasında daha az boşluk */
+#countdown {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    margin-right: 10px;
 }
 
-.header-right span {
-    font-size: 14px;
+#clock,
+.language {
+    font-size: 16px;
+    font-weight: bold;
 }
 
-/* Kategori Menüsü */
+.language {
+    cursor: pointer;
+}
+
 .category-menu {
     display: flex;
     background-color: #e03e00;
@@ -72,109 +99,156 @@ body {
     justify-content: space-between;
 }
 
-.category-btn {
-    background-color: #ff4500;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    margin-right: 5px;
-    cursor: pointer;
-    border-radius: 3px;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.category-btn:hover {
-    background-color: #d13700;
-}
-
-.category-btn.active {
-    background-color: #d13700;
-    font-weight: bold;
-}
-
 .size-controls {
     display: flex;
-    align-items: center;
     gap: 5px;
+    margin-left: auto;
 }
 
 .size-btn {
-    background-color: #ff4500;
-    color: white;
+    background-color: #333;
     border: none;
-    padding: 5px 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 8px 12px;
     cursor: pointer;
-    border-radius: 3px;
-    font-size: 14px;
-    transition: background-color 0.3s;
+    border-radius: 15px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    outline: none;
 }
 
 .size-btn:hover {
-    background-color: #d13700;
+    background-color: #555;
 }
 
-.settings-btn {
-    background-color: #1f1717;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 3px;
-    font-size: 14px;
-    transition: background-color 0.3s;
+.size-btn:active {
+    transform: scale(0.98);
 }
 
-.settings-btn:hover {
-    background-color: #da190b;
-}
-
-/* Kaynak Menüsü */
 .category-source-menu {
     display: flex;
-    background-color: #ff6a36;
-    padding: 5px 20px;
+    background-color: #2d3123;
+    padding: 11px 20px;
     overflow-x: auto;
     white-space: nowrap;
+    border-top: 1px solid #ff6a36;
     border-bottom: 1px solid #d13700;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 0;
+    min-height: 40px; /* Menü boşken bile görünür olması için */
+}
+
+.category-source-menu:empty::after {
+    content: "Kaynaklar yükleniyor...";
+    color: white;
+    font-size: 14px;
+    padding: 5px;
 }
 
 .category-source-title {
+    font-size: 13px;
     font-weight: bold;
+    line-height: 0.5;
+    flex-grow: 0;
+    padding: 5px 2px;
+    overflow: hidden;
+    display: inline-block;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
     color: white;
-    margin-right: 5px;
+    align-content: center;
+    margin: 0;
 }
 
 .source-item {
-    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    margin-right: 2px;
     color: white;
+    font-size: 14px;
+    text-align: left;
 }
 
-/* Ana İçerik */
+.source-item input[type="checkbox"] {
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.category-btn {
+    background-color: #333;
+    border: none;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    border-radius: 15px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    outline: none;
+}
+
+.category-btn:last-child {
+    margin-right: 0;
+}
+
+.category-btn:hover:not(.active) {
+    background-color: #555;
+}
+
+.category-btn:active:not(.active) {
+    transform: scale(0.98);
+}
+
+.category-btn.active {
+    background-color: #fff;
+    color: #ff4500;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Renkli kategoriler için eski yapı da korunabilir (isteğe bağlı) */
+.category-btn.active[data-category="Son Dakika"] { background-color: #ff0000; color: white; }
+.category-btn.active[data-category="Spor"] { background-color: #008000; color: white; }
+.category-btn.active[data-category="Magazin"] { background-color: #800080; color: white; }
+.category-btn.active[data-category="Dünya"] { background-color: #ffa500; color: white; }
+.category-btn.active[data-category="Gündem"] { background-color: #0000ff; color: white; }
+.category-btn.active[data-category="Politika"] { background-color: #666; color: white; }
+.category-btn.active[data-category="Otomobil"] { background-color: #00008B; color: white; }
+.category-btn.active[data-category="Teknoloji"] { background-color: #00BFFF; color: white; }
+.category-btn.active[data-category="Ekonomi"] { background-color: #466e98; color: white; }
+
 .main-content {
     display: flex;
-    height: calc(100vh - 120px);
+    flex: 1;
+    overflow: hidden;
+    background-color: #fff;
+    border-top: 3px solid #ccc;
 }
 
-.news-list {
-    flex: 1;
+#news-list {
+    flex: 0 0 60%;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #f8f8f8;
+    border-right: 1px solid #ccc;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 10px;
-    padding: 10px;
-    overflow-y: auto;
-    background-color: #f5f5f5;
+    gap: 15px;
+    align-content: start;
 }
 
 .news-item {
-    background-color: #808080;
-    border-radius: 5px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     overflow: hidden;
-    position: relative;
-    height: 220px;
-    transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 220px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .news-item:hover {
@@ -182,14 +256,49 @@ body {
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
 }
 
-.news-item:hover .news-new {
-    display: block !important;
-}
-
 .news-image {
     width: 100%;
     height: 110px;
     object-fit: cover;
+    background-color: #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.news-title {
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 1.3;
+    flex-grow: 1;
+    padding: 8px 8px 8px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    color: white;
+}
+
+.news-date {
+    font-size: 11px;
+    color: #fff;
+    text-align: center;
+    padding: 3px 5px;
+    border-radius: 4px;
+    margin: 8px;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.news-detail {
+    flex: 0 0 40%;
+    background-color: #e9e9e9;
+    overflow: hidden;
+    position: relative;
+}
+
+.news-detail iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
 }
 
 .news-new {
@@ -205,64 +314,28 @@ body {
     display: block;
 }
 
-.news-title {
-    padding: 5px;
-    font-size: 13px;
-    color: white;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-}
-
-.news-date {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    font-size: 11px;
-    color: #ddd;
-}
-
-.news-detail {
-    flex: 1;
-    border-left: 1px solid #ccc;
-    overflow-y: auto;
-    background-color: white;
-}
-
-/* Mobil Menü */
+/* Mobil Menü Stilleri */
 .mobile-menu {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #ff4500;
-    z-index: 1000;
-    flex-direction: column;
-    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 100;
     transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
 }
 
 .mobile-menu.active {
     transform: translateX(0);
 }
 
-.mobile-menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.mobile-menu-header h2 {
-    color: white;
-    font-size: 20px;
-}
-
 .close-menu-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
     background: none;
     border: none;
     color: white;
@@ -271,52 +344,74 @@ body {
 }
 
 .mobile-categories {
-    flex: 1;
-    overflow-y: auto;
+    padding: 50px 20px;
 }
 
 .category-row {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
     margin-bottom: 20px;
 }
 
 .mobile-category-item {
-    flex: 1;
-    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 .mobile-category-title {
-    color: white;
+    font-size: 16px;
     font-weight: bold;
+    color: white;
     margin-bottom: 10px;
     display: block;
 }
 
 .mobile-source-item {
-    display: block;
+    display: flex;
+    align-items: center;
     color: white;
+    font-size: 14px;
     margin: 5px 0;
 }
 
+.mobile-source-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Mobil Menüdeki Ayar Butonları (Sadece Sıfırlama Butonu Kaldı) */
 .mobile-settings {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
     gap: 10px;
     padding: 10px;
 }
 
-/* Mobil Haber Detay Overlay */
+.settings-btn {
+    padding: 8px 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1f1717;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.settings-btn:hover {
+    background-color: #da190b;
+}
+
+/* Haber Detay Overlay */
 .news-detail-overlay {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: white;
-    z-index: 1000;
+    background-color: #fff;
+    z-index: 200;
+    display: none;
     flex-direction: column;
 }
 
@@ -325,76 +420,161 @@ body {
 }
 
 .header-frame {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    background-color: #ff4500;
-    padding: 10px 20px;
-    color: white;
+    height: 50px;
+    flex-shrink: 0;
 }
 
 .close-overlay-btn {
-    background: none;
-    border: none;
+    background-color: #333;
     color: white;
-    font-size: 18px;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
     cursor: pointer;
+    border-radius: 5px;
 }
 
-/* Mobil Görünüm */
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    #news-list {
+        flex: 0 0 50%;
+    }
+    .news-detail {
+        flex: 0 0 50%;
+    }
+    .news-item {
+        height: 200px;
+    }
+    .news-image {
+        height: 100px;
+    }
+}
+
 @media (max-width: 768px) {
-    .header h1 {
-        font-size: 20px;
-    }
-
-    .header-right {
-        gap: 10px;
-    }
-
-    .header-right span {
-        font-size: 12px;
-    }
-
     .hamburger-btn {
         display: block;
     }
 
-    .category-menu {
-        display: none;
-    }
-
-    .category-source-menu {
+    .category-menu, .category-source-menu, .size-controls {
         display: none;
     }
 
     .main-content {
-        height: calc(100vh - 60px);
+        flex-direction: column;
+        height: auto;
     }
 
-    .news-list {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 5px;
-        padding: 5px;
+    #news-list {
+        flex: 1 1 auto;
+        width: 100%;
+        height: 100vh;
+        border-right: none;
+        border-bottom: none;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
     }
 
     .news-item {
         height: 170px;
     }
 
-    .mobile-news-item .news-image {
+    .news-image {
         height: 60px;
     }
 
-    .mobile-news-item .news-title {
+    .news-title {
         font-size: 12px;
         -webkit-line-clamp: 4;
     }
 
-    .mobile-news-item .news-date {
+    .news-date {
         font-size: 10px;
+        margin: 5px;
     }
 
     .news-detail {
         display: none;
+    }
+
+    .header-top {
+        padding: 8px 15px;
+    }
+    .logo {
+        font-size: 28px;
+    }
+    #clock, .language {
+        font-size: 14px;
+    }
+
+    .header-right .size-btn {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 769px) {
+    .header-right .size-btn {
+        display: none;
+    }
+
+    .category-source-menu {
+        display: flex !important; /* PC'de her zaman görünür olmasını sağla */
+    }
+}
+
+@media (max-width: 480px) {
+    #news-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .news-item {
+        height: 150px;
+    }
+
+    .news-image {
+        height: 50px;
+    }
+
+    .news-title {
+        font-size: 11px;
+        -webkit-line-clamp: 4;
+    }
+
+    .news-date {
+        font-size: 9px;
+    }
+
+    .header-right .size-btn {
+        padding: 4px 8px;
+        font-size: 12px;
     }
 }

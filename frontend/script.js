@@ -63,9 +63,6 @@ Object.keys(categoryRssUrls).forEach(category => {
     }
 });
 
-let tempSelectedCategories = [...selectedCategories];
-let tempSelectedSources = JSON.parse(JSON.stringify(selectedSources)); // Derin kopya
-
 let allNews = [];
 let displayedNewsCount = 50;
 let isLoadingMore = false;
@@ -130,9 +127,6 @@ function resetCategories() {
         }
     });
 
-    tempSelectedCategories = [...selectedCategories];
-    tempSelectedSources = JSON.parse(JSON.stringify(selectedSources));
-
     // Arayüzü güncelle
     updateSourceBar();
     fetchNews();
@@ -194,25 +188,26 @@ function updateSourceBar() {
                     sourceLabel.className = 'mobile-source-item';
                     const sourceCheckbox = document.createElement('input');
                     sourceCheckbox.type = 'checkbox';
-                    sourceCheckbox.checked = tempSelectedSources[category].includes(source);
+                    sourceCheckbox.checked = selectedSources[category].includes(source);
                     sourceCheckbox.dataset.category = category;
                     sourceCheckbox.dataset.source = source;
 
                     sourceCheckbox.addEventListener('change', () => {
                         if (sourceCheckbox.checked) {
-                            if (!tempSelectedSources[category].includes(source)) {
-                                tempSelectedSources[category].push(source);
+                            if (!selectedSources[category].includes(source)) {
+                                selectedSources[category].push(source);
                             }
-                            if (!tempSelectedCategories.includes(category)) {
-                                tempSelectedCategories.push(category);
+                            if (!selectedCategories.includes(category)) {
+                                selectedCategories.push(category);
                             }
                         } else {
-                            tempSelectedSources[category] = tempSelectedSources[category].filter(s => s !== source);
-                            if (tempSelectedSources[category].length === 0) {
-                                tempSelectedCategories = tempSelectedCategories.filter(cat => cat !== category);
+                            selectedSources[category] = selectedSources[category].filter(s => s !== source);
+                            if (selectedSources[category].length === 0) {
+                                selectedCategories = selectedCategories.filter(cat => cat !== category);
                             }
                         }
-                        // updateSourceBar ve fetchNews çağrısını kaldırıyoruz, Onayla butonuna basıldığında yapılacak
+                        updateSourceBar();
+                        debouncedFetchNews();
                     });
 
                     sourceLabel.appendChild(sourceCheckbox);
@@ -259,7 +254,6 @@ function updateSourceBar() {
                 } else {
                     selectedSources[category] = selectedSources[category].filter(s => s !== source);
                 }
-                tempSelectedSources = JSON.parse(JSON.stringify(selectedSources));
                 debouncedFetchNews();
             });
 
@@ -283,18 +277,6 @@ function updateSourceBar() {
     localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
     localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
     console.log('Updated source bar for desktop and saved selections to localStorage.');
-
-    // Onayla butonuna olay dinleyici ekle
-    const confirmBtn = document.getElementById('confirm-categories-mobile');
-    confirmBtn.addEventListener('click', () => {
-        selectedCategories = [...tempSelectedCategories];
-        selectedSources = JSON.parse(JSON.stringify(tempSelectedSources));
-        updateSourceBar();
-        fetchNews();
-        mobileMenu.classList.remove('active'); // Menüyü kapat
-        localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
-        localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
-    });
 }
 
 // Kategori butonlarını dinle
@@ -309,9 +291,6 @@ document.querySelectorAll('.category-btn').forEach(button => {
             // Varsayılan olarak tüm kaynakları seçili yap
             selectedSources[category] = Object.keys(categoryRssUrls[category]);
         }
-
-        tempSelectedCategories = [...selectedCategories];
-        tempSelectedSources = JSON.parse(JSON.stringify(selectedSources));
 
         document.querySelectorAll('.category-btn').forEach(btn => {
             if (selectedCategories.includes(btn.dataset.category)) {
@@ -750,10 +729,6 @@ function renderNews() {
         });
 
         const isNew = news.newLabelUntil && now < news.newLabelUntil;
-        if (news.newLabelUntil) {
-            const timeDiff = (news.newLabelUntil - now) / 1000 / 60;
-            console.log(`Haber: ${news.title}, Yeni etiketi süresi: ${timeDiff.toFixed(2)} dakika kaldı`);
-        }
 
         const newsItem = document.createElement('div');
         newsItem.className = 'news-item';
