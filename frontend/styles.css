@@ -137,6 +137,14 @@ body {
     justify-content: flex-start;
     align-items: flex-start;
     gap: 0;
+    min-height: 40px; /* Menü boşken bile görünür olması için */
+}
+
+.category-source-menu:empty::after {
+    content: "Kaynaklar yükleniyor...";
+    color: white;
+    font-size: 14px;
+    padding: 5px;
 }
 
 .category-source-title {
@@ -299,11 +307,11 @@ body {
     left: 5px;
     background-color: #ff0000;
     color: white;
-    font-size: 12px; /* 10px'ten 12px'e büyüttük */
+    font-size: 12px;
     padding: 2px 5px;
     border-radius: 3px;
     z-index: 1;
-    display: block; /* Hover olmadan otomatik görünmesi için */
+    display: block;
 }
 
 /* Mobil Menü Stilleri */
@@ -384,7 +392,7 @@ body {
     margin: 5px;
     border: none;
     border-radius: 5px;
-    background-color: #f44336; /* Kırmızı tonu */
+    background-color: #f44336;
     color: white;
     cursor: pointer;
     font-size: 14px;
@@ -488,12 +496,12 @@ body {
         border-right: none;
         border-bottom: none;
         display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 3'lü grid */
+        grid-template-columns: repeat(3, 1fr);
         gap: 10px;
     }
 
     .news-item {
-        height: 170px; /* 4 satır başlık için artırıldı */
+        height: 170px;
     }
 
     .news-image {
@@ -502,7 +510,7 @@ body {
 
     .news-title {
         font-size: 12px;
-        -webkit-line-clamp: 4; /* 4 satıra çıkarıldı */
+        -webkit-line-clamp: 4;
     }
 
     .news-date {
@@ -511,7 +519,7 @@ body {
     }
 
     .news-detail {
-        display: none; /* Mobil cihazlarda news-detail gizlenir, overlay kullanılır */
+        display: none;
     }
 
     .header-top {
@@ -524,7 +532,6 @@ body {
         font-size: 14px;
     }
 
-    /* Mobil'de + ve - butonlarının stilini ayarla */
     .header-right .size-btn {
         display: inline-block;
         padding: 5px 10px;
@@ -533,15 +540,18 @@ body {
 }
 
 @media (min-width: 769px) {
-    /* PC'de header-right içindeki + ve - butonlarını gizle */
     .header-right .size-btn {
         display: none;
+    }
+
+    .category-source-menu {
+        display: flex !important; /* PC'de her zaman görünür olmasını sağla */
     }
 }
 
 @media (max-width: 480px) {
     #news-list {
-        grid-template-columns: repeat(2, 1fr); /* 480px ve altında 2'li grid */
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
         padding: 8px;
     }
@@ -563,7 +573,6 @@ body {
         font-size: 9px;
     }
 
-    /* Daha küçük ekranlarda + ve - butonlarını biraz küçült */
     .header-right .size-btn {
         padding: 4px 8px;
         font-size: 12px;

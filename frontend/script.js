@@ -126,8 +126,7 @@ function resetCategories() {
     localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
 }
 
-// "Kategorileri Sıfırla" butonuna olay dinleyici ekle
-document.getElementById('reset-categories').addEventListener('click', resetCategories);
+// "Kategorileri Sıfırla" butonuna olay dinleyici ekle (sadece mobil için)
 document.getElementById('reset-categories-mobile').addEventListener('click', resetCategories);
 
 // Kaynak seçim barını güncelle (hem masaüstü hem mobil için)
@@ -142,7 +141,7 @@ function updateSourceBar() {
     }
 
     // Masaüstü için kaynak barını güncelle
-    sourceMenu.innerHTML = '<nav class="category-source-title">KAYNAKLAR</nav>';
+    sourceMenu.innerHTML = '<span class="category-source-title">KAYNAKLAR</span>';
     console.log('Cleared sourceMenu for desktop.');
 
     // Mobil için menüyü güncelle
@@ -678,7 +677,7 @@ function renderNews() {
         newsList.innerHTML = '';
     }
 
-    console.log(`allNews length before rendering: ${allNews.lengthECONOMI}`);
+    console.log(`allNews length before rendering: ${allNews.length}`);
 
     const newsToShow = allNews.slice(lastRenderedNewsCount, displayedNewsCount);
     console.log(`News to show: ${newsToShow.length} items`);
