@@ -472,10 +472,6 @@ body {
         display: block;
     }
 
-    .category-menu, .category-source-menu, .size-controls {
-        display: none;
-    }
-
     .main-content {
         flex-direction: column;
         height: auto;
