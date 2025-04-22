@@ -644,8 +644,9 @@ async function fetchNews() {
 
                     const currentTime = new Date();
                     const thirtyMinutes = 30 * 60 * 1000; // 30 dakika milisaniye cinsinden
-                    const isNew = (currentTime - pubDate) <= thirtyMinutes; // Son 30 dakikada yayınlandıysa yeni
-                    const newLabelUntil = isNew ? new Date(currentTime.getTime() + thirtyMinutes) : null;
+                    const timeDiff = currentTime - pubDate;
+                    const isNew = timeDiff <= thirtyMinutes; // Son 30 dakikada yayınlandıysa yeni
+                    console.log(`News: ${title}, pubDate: ${pubDate}, currentTime: ${currentTime}, timeDiff: ${timeDiff}, isNew: ${isNew}`);
 
                     const newsItem = {
                         categories: [category],
@@ -660,10 +661,10 @@ async function fetchNews() {
                                link.includes('otoaktuel') ? 'otoaktuel' : 
                                link.includes('mynet') ? 'mynet' : 
                                link.includes('finansingundemi') ? 'finansingundemi' : 'unknown',
-                        newLabelUntil: newLabelUntil // 30 dakika boyunca "Yeni" etiketi göster
+                        isNew: isNew // Direkt olarak isNew değerini sakla
                     };
 
-                    console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}, New Until: ${newsItem.newLabelUntil}`);
+                    console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}, isNew: ${newsItem.isNew}`);
 
                     if (!newsById.has(uniqueKey)) {
                         newsById.set(uniqueKey, newsItem);
@@ -673,9 +674,9 @@ async function fetchNews() {
                         if (!existing.categories.includes(category)) {
                             existing.categories.push(category);
                         }
-                        // Eğer mevcut haber zaten varsa ve yeni geldiyse newLabelUntil güncelle
+                        // Eğer mevcut haber zaten varsa ve yeni geldiyse isNew güncelle
                         if (isNew) {
-                            existing.newLabelUntil = new Date(currentTime.getTime() + thirtyMinutes);
+                            existing.isNew = true;
                         }
                     }
                 });
@@ -703,7 +704,7 @@ async function fetchNews() {
 
         console.log('First few news after sorting:');
         allNews.slice(0, 5).forEach((news, index) => {
-            console.log(`News ${index + 1}: ${news.title}, Date: ${news.date}, Categories: ${news.categories}, Link: ${news.link}, Source: ${news.source}, New Until: ${news.newLabelUntil}`);
+            console.log(`News ${index + 1}: ${news.title}, Date: ${news.date}, Categories: ${news.categories}, Link: ${news.link}, Source: ${news.source}, isNew: ${news.isNew}`);
         });
 
         renderNews();
@@ -737,8 +738,6 @@ function renderNews() {
         return;
     }
 
-    const now = new Date();
-
     newsToShow.forEach(news => {
         const categories = news.categories;
         const primaryCategory = categories[0];
@@ -751,8 +750,7 @@ function renderNews() {
             minute: '2-digit',
         });
 
-        const isNew = news.newLabelUntil && now < news.newLabelUntil;
-        console.log(`Rendering news: ${news.title}, isNew: ${isNew}, newLabelUntil: ${news.newLabelUntil}, Current Time: ${now}`);
+        console.log(`Rendering news: ${news.title}, isNew: ${news.isNew}, Date: ${news.date}`);
 
         const newsItem = document.createElement('div');
         newsItem.className = 'news-item';
@@ -761,14 +759,14 @@ function renderNews() {
             newsItem.classList.add('mobile-news-item');
             newsItem.innerHTML = `
                 <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
-                ${isNew ? '<div class="news-new">Yeni</div>' : ''}
+                ${news.isNew ? '<div class="news-new">Yeni</div>' : ''}
                 <div class="news-title" style="background-color: ${color};">${news.title}</div>
                 <div class="news-date">${formattedDate}</div>
             `;
         } else {
             newsItem.innerHTML = `
                 <img src="${news.imageUrl || 'https://via.placeholder.com/150'}" alt="${news.title}" class="news-image" />
-                ${isNew ? '<div class="news-new">Yeni</div>' : ''}
+                ${news.isNew ? '<div class="news-new">Yeni</div>' : ''}
                 <div class="news-title" style="background-color: ${color};">${news.title}</div>
                 <div class="news-date">${formattedDate}</div>
             `;
