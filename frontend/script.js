@@ -69,9 +69,19 @@ let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
 let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
 let countdown = 180; // 180 saniyeden geriye sayacak
+let isFetching = false; // Fetch kilit mekanizması
 
 // Boyut seviyesini takip etmek için değişken
 let sizeLevel = 0; // -2, -1, 0, 1, 2 gibi değerler alacak
+
+// Debounce fonksiyonu
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
 
 // Saat ve sayaç güncellemesi
 function updateClock() {
@@ -197,7 +207,7 @@ function updateSourceBar() {
                             }
                         }
                         updateSourceBar();
-                        fetchNews();
+                        debouncedFetchNews();
                     });
 
                     sourceLabel.appendChild(sourceCheckbox);
@@ -244,7 +254,7 @@ function updateSourceBar() {
                 } else {
                     selectedSources[category] = selectedSources[category].filter(s => s !== source);
                 }
-                fetchNews();
+                debouncedFetchNews();
             });
 
             label.appendChild(checkbox);
@@ -291,7 +301,7 @@ document.querySelectorAll('.category-btn').forEach(button => {
         });
 
         updateSourceBar();
-        fetchNews();
+        debouncedFetchNews();
         // Seçimleri localStorage'a kaydet
         localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
         localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
@@ -416,6 +426,15 @@ document.getElementById('decrease-size-mobile').addEventListener('click', () => 
 
 // RSS'ten haberleri çek
 async function fetchNews() {
+    // Eğer zaten bir fetch işlemi devam ediyorsa, yeni bir işlem başlatma
+    if (isFetching) {
+        console.log('Fetch already in progress, skipping this call.');
+        return;
+    }
+
+    isFetching = true; // Kilidi aç
+    console.log('Starting fetchNews...');
+
     const newsList = document.getElementById('news-list');
     newsList.innerHTML = '<p>Haberlerin yüklenme süresi seçtiğiniz kategori sayısına göre değişebilir. Beklediğiniz için teşekkürler.</p>';
     allNews = [];
@@ -424,6 +443,7 @@ async function fetchNews() {
 
     if (selectedCategories.length === 0) {
         newsList.innerHTML = '<p>Lütfen en az bir kategori seçin</p>';
+        isFetching = false; // Kilidi kapat
         return;
     }
 
@@ -667,8 +687,14 @@ async function fetchNews() {
     } catch (error) {
         console.error('Error fetching news:', error);
         newsList.innerHTML = `<p>Haberler yüklenemedi: ${error.message}</p>`;
+    } finally {
+        isFetching = false; // Kilidi kapat
+        console.log('Fetch completed, lock released.');
     }
 }
+
+// Debounce ile fetchNews fonksiyonunu sar
+const debouncedFetchNews = debounce(fetchNews, 500); // 500ms bekleme süresi
 
 // Haberleri render et
 function renderNews() {
