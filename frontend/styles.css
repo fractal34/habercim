@@ -532,6 +532,10 @@ body {
         font-size: 14px;
     }
 
+    .header-right {
+        gap: 10px; /* + ve - tuşları arasındaki mesafeyi azalt */
+    }
+
     .header-right .size-btn {
         display: inline-block;
         padding: 5px 10px;
