@@ -368,7 +368,7 @@ function updateNewsSize() {
     newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
 }
 
-// Boyut artırma ve azaltma butonları (Masaüstü ve Mobil için ortak butonlar)
+// Boyut artırma ve azaltma butonları (Masaüstü için)
 document.getElementById('increase-size').addEventListener('click', () => {
     if (sizeLevel < 2) {
         sizeLevel++;
@@ -383,7 +383,7 @@ document.getElementById('decrease-size').addEventListener('click', () => {
     }
 });
 
-// Mobil için boyut artırma ve azaltma butonları
+// Mobil için boyut artırma ve azaltma butonları (header-right içinde)
 document.getElementById('increase-size-mobile').addEventListener('click', () => {
     if (sizeLevel < 2) {
         sizeLevel++;
@@ -756,7 +756,7 @@ function showNewsDetail(news) {
         newsDetail.innerHTML = `
             <iframe src="${displayUrl}" frameborder="0" style="width: 100%; height: 100%;"
                 onload="console.log('Iframe loaded successfully: ${displayUrl}')"
-                onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde göster: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
+                onerror="console.error('Iframe failed to load: ${displayUrl}, Error: ' + (this.contentDocument || this.contentWindow.document || 'Unknown error')); this.style.display='none'; this.parentElement.innerHTML='<p>Bu haber iframe içinde gösterilemiyor: ${news.source === 'milliyet' ? 'Milliyet haberleri iframe içinde açılamıyor (X-Frame-Options kısıtlaması). Lütfen başka bir haber seçin.' : 'Bilinmeyen bir hata oluştu.'}</p>';">
             </iframe>
         `;
     }

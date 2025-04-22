@@ -1,4 +1,4 @@
-/* Modernize Edilmiş CSS (1. versiyon baz alınarak 2. versiyona uygulandı) ek oldu */
+/* Modernize Edilmiş CSS (1. versiyon baz alınarak güncellendi) */
 
 * {
     margin: 0;
@@ -55,29 +55,6 @@ body {
     60% {
         transform: translateY(-5px);
     }
-}
-
-.settings-btn {
-    padding: 8px 16px;
-    margin: 5px;
-    border: none;
-    border-radius: 5px;
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.settings-btn:hover {
-    background-color: #45a049;
-}
-
-#reset-categories, #reset-categories-mobile {
-    background-color: #f44336; /* Kırmızı tonu */
-}
-
-#reset-categories:hover, #reset-categories-mobile:hover {
-    background-color: #da190b;
 }
 
 .logo {
@@ -394,21 +371,27 @@ body {
     margin-right: 10px;
 }
 
-/* Ayarlar Menüsü Stilleri */
-.settings-menu {
-    position: absolute;
-    top: 50px;
-    right: 10px;
-    background-color: #333;
+/* Mobil Menüdeki Ayar Butonları (Sadece Sıfırlama Butonu Kaldı) */
+.mobile-settings {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
     padding: 10px;
-    border-radius: 8px;
-    display: none;
-    z-index: 50;
 }
 
-.settings-menu.active {
-    display: flex;
-    gap: 10px;
+.settings-btn {
+    padding: 8px 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f44336; /* Kırmızı tonu */
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.settings-btn:hover {
+    background-color: #da190b;
 }
 
 /* Haber Detay Overlay */
@@ -485,7 +468,7 @@ body {
 }
 
 @media (max-width: 768px) {
-    .hamburger-btn, .settings-btn {
+    .hamburger-btn {
         display: block;
     }
 
@@ -541,14 +524,18 @@ body {
         font-size: 14px;
     }
 
-    .settings-btn {
-        display: inline-block; /* Mobil'de görünür */
+    /* Mobil'de + ve - butonlarının stilini ayarla */
+    .header-right .size-btn {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 14px;
     }
 }
 
 @media (min-width: 769px) {
-    .settings-btn {
-        display: none; /* PC'de gizli */
+    /* PC'de header-right içindeki + ve - butonlarını gizle */
+    .header-right .size-btn {
+        display: none;
     }
 }
 
@@ -574,5 +561,11 @@ body {
 
     .news-date {
         font-size: 9px;
+    }
+
+    /* Daha küçük ekranlarda + ve - butonlarını biraz küçült */
+    .header-right .size-btn {
+        padding: 4px 8px;
+        font-size: 12px;
     }
 }
