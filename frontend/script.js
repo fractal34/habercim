@@ -72,7 +72,7 @@ let displayedNewsCount = 50;
 let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
 let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
-let countdown = 60; // 60 saniyeye düşürüldü
+let countdown = 60; // 60 saniye
 let isFetching = false; // Fetch kilit mekanizması
 
 // Boyut seviyesini takip etmek için değişken
@@ -103,12 +103,6 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
-
-// Yenile butonu için olay dinleyici
-document.getElementById('refresh-news').addEventListener('click', () => {
-    countdown = 60; // Sayacı sıfırla
-    fetchNews(); // Haberleri yenile
-});
 
 // Hamburger Menü Kontrolü
 const mobileMenu = document.getElementById('mobile-menu');
@@ -758,6 +752,7 @@ function renderNews() {
         });
 
         const isNew = news.newLabelUntil && now < news.newLabelUntil;
+        console.log(`Rendering news: ${news.title}, isNew: ${isNew}, newLabelUntil: ${news.newLabelUntil}, Current Time: ${now}`);
 
         const newsItem = document.createElement('div');
         newsItem.className = 'news-item';
