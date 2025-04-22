@@ -132,13 +132,22 @@ document.getElementById('reset-categories-mobile').addEventListener('click', res
 
 // Kaynak seçim barını güncelle (hem masaüstü hem mobil için)
 function updateSourceBar() {
+    console.log('updateSourceBar called. Selected Categories:', selectedCategories);
     const sourceMenu = document.querySelector('.category-source-menu');
     const mobileCategories = document.getElementById('mobile-categories');
 
+    if (!sourceMenu || !mobileCategories) {
+        console.error('Source menu or mobile categories element not found!');
+        return;
+    }
+
     // Masaüstü için kaynak barını güncelle
     sourceMenu.innerHTML = '<nav class="category-source-title">KAYNAKLAR</nav>';
+    console.log('Cleared sourceMenu for desktop.');
+
     // Mobil için menüyü güncelle
     mobileCategories.innerHTML = '';
+    console.log('Cleared mobileCategories.');
 
     // Tüm kategoriler için başlık ve kaynaklar (mobil menüde)
     const allCategories = Object.keys(categoryRssUrls);
@@ -202,16 +211,21 @@ function updateSourceBar() {
 
         mobileCategories.appendChild(categoryRow);
     });
+    console.log('Updated mobile categories menu.');
 
     // Masaüstü için sadece seçili kategorilerin kaynaklarını göster
     selectedCategories.forEach(category => {
         const sources = categoryRssUrls[category];
-        if (!sources) return;
+        if (!sources) {
+            console.warn(`No sources found for category: ${category}`);
+            return;
+        }
 
         const categoryTitle = document.createElement('span');
         categoryTitle.className = 'category-source-title';
         categoryTitle.textContent = ` - ${category.toUpperCase()}: `;
         sourceMenu.appendChild(categoryTitle);
+        console.log(`Added category title for ${category}`);
 
         Object.keys(sources).forEach(source => {
             const label = document.createElement('label');
@@ -236,6 +250,7 @@ function updateSourceBar() {
             label.appendChild(checkbox);
             label.appendChild(document.createTextNode(source));
             sourceMenu.appendChild(label);
+            console.log(`Added source ${source} for category ${category}`);
         });
     });
 
@@ -251,6 +266,7 @@ function updateSourceBar() {
     // Seçimleri localStorage'a kaydet
     localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
     localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
+    console.log('Updated source bar for desktop and saved selections to localStorage.');
 }
 
 // Kategori butonlarını dinle
@@ -662,7 +678,7 @@ function renderNews() {
         newsList.innerHTML = '';
     }
 
-    console.log(`allNews length before rendering: ${allNews.length}`);
+    console.log(`allNews length before rendering: ${allNews.lengthECONOMI}`);
 
     const newsToShow = allNews.slice(lastRenderedNewsCount, displayedNewsCount);
     console.log(`News to show: ${newsToShow.length} items`);
