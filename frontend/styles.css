@@ -129,7 +129,7 @@ body {
 .category-source-menu {
     display: flex;
     background-color: #2d3123;
-    padding: 8px 20px;
+    padding: 11px 20px;
     overflow-x: auto;
     white-space: nowrap;
     border-top: 1px solid #ff6a36;

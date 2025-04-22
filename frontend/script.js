@@ -126,7 +126,8 @@ function resetCategories() {
     localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
 }
 
-// "Kategorileri Sıfırla" butonuna olay dinleyici ekle (sadece mobil için)
+// "Kategorileri Sıfırla" butonuna olay dinleyici ekle (hem PC hem mobil için)
+document.getElementById('reset-categories').addEventListener('click', resetCategories);
 document.getElementById('reset-categories-mobile').addEventListener('click', resetCategories);
 
 // Kaynak seçim barını güncelle (hem masaüstü hem mobil için)
