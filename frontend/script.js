@@ -72,7 +72,7 @@ let displayedNewsCount = 50;
 let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
 let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
-let countdown = 180; // 180 saniyeden geriye sayacak
+let countdown = 60; // 60 saniyeye düşürüldü
 let isFetching = false; // Fetch kilit mekanizması
 
 // Boyut seviyesini takip etmek için değişken
@@ -97,12 +97,18 @@ function updateClock() {
     document.getElementById('countdown').textContent = `${countdown}s`;
     countdown--;
     if (countdown < 0) {
-        countdown = 180; // 180 saniyeye sıfırla
+        countdown = 60; // 60 saniyeye sıfırla
         fetchNews(); // Haberleri yenile
     }
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+// Yenile butonu için olay dinleyici
+document.getElementById('refresh-news').addEventListener('click', () => {
+    countdown = 60; // Sayacı sıfırla
+    fetchNews(); // Haberleri yenile
+});
 
 // Hamburger Menü Kontrolü
 const mobileMenu = document.getElementById('mobile-menu');
@@ -644,7 +650,7 @@ async function fetchNews() {
 
                     const currentTime = new Date();
                     const thirtyMinutes = 30 * 60 * 1000; // 30 dakika milisaniye cinsinden
-                    const isNew = pubDate > lastFetchTime;
+                    const isNew = (currentTime - pubDate) <= thirtyMinutes; // Son 30 dakikada yayınlandıysa yeni
                     const newLabelUntil = isNew ? new Date(currentTime.getTime() + thirtyMinutes) : null;
 
                     const newsItem = {
