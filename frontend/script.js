@@ -46,9 +46,8 @@ const categoryColors = {
 // CORS proxy URL'si
 const corsProxy = 'https://habercim.vercel.app/api/proxy?url=';
 
-// Her kategoriden çekilecek maksimum haber sayısı (Mobil için 10, masaüstü için 50)
+// Mobil cihaz kontrolü
 const isMobile = window.innerWidth <= 768;
-const MAX_NEWS_PER_CATEGORY = isMobile ? 10 : 50;
 
 // Seçili kategoriler ve kaynaklar (localStorage'dan yükle, yoksa varsayılan değerler)
 let selectedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || ['Son Dakika'];
@@ -516,9 +515,9 @@ async function fetchNews() {
                 const text = await response.text();
                 const parser = new DOMParser();
                 const xml = parser.parseFromString(text, 'text/xml');
-                const items = Array.from(xml.querySelectorAll('item')).slice(0, MAX_NEWS_PER_CATEGORY);
+                const items = Array.from(xml.querySelectorAll('item')); // Sınırlama olmadan tüm haberleri al
 
-                console.log(`Fetched ${items.length} items for category ${category} from ${source} (limited to ${MAX_NEWS_PER_CATEGORY})`);
+                console.log(`Fetched ${items.length} items for category ${category} from ${source}`);
 
                 const now = new Date();
                 const threeDaysInMs = 72 * 60 * 60 * 1000; // 72 saat (3 gün) milisaniye cinsinden
