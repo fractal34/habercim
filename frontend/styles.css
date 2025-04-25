@@ -242,21 +242,15 @@ body {
 .news-item {
     border: 1px solid #ddd;
     border-radius: 8px;
-    overflow: hidden;
+    /* overflow: hidden; kaldırıldı */
     cursor: pointer;
     display: flex;
     flex-direction: column;
     height: 220px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative; /* .news-new için pozisyon referansı */
 }
-
-/* .news-item:hover efekti kaldırıldı
-.news-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
-}
-*/
 
 .news-image {
     width: 100%;
@@ -264,6 +258,7 @@ body {
     object-fit: cover;
     background-color: #eee;
     border-bottom: 1px solid #eee;
+    overflow: hidden; /* Taşmayı burada kontrol et */
 }
 
 .news-title {
@@ -312,9 +307,9 @@ body {
     font-size: 12px;
     padding: 2px 5px;
     border-radius: 3px;
-    z-index: 1;
-    display: block !important; /* Her durumda görünür olmasını sağla */
-    opacity: 1 !important; /* Şeffaflıkla gizlenmiş olma ihtimaline karşı */
+    z-index: 10; /* Daha yüksek bir z-index */
+    display: block !important;
+    opacity: 1 !important;
 }
 
 .news-item:hover .news-new {
