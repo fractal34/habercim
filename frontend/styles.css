@@ -311,7 +311,13 @@ body {
     padding: 2px 5px;
     border-radius: 3px;
     z-index: 1;
-    display: block;
+    display: block !important; /* Her durumda görünür olmasını sağla */
+    opacity: 1 !important; /* Şeffaflıkla gizlenmiş olma ihtimaline karşı */
+}
+
+.news-item:hover .news-new {
+    display: block !important;
+    opacity: 1 !important;
 }
 
 /* Mobil Menü Stilleri */
