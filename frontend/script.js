@@ -71,17 +71,8 @@ let displayedNewsCount = 50;
 let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
 let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
+let countdown = 60; // 60 saniye
 let isFetching = false; // Fetch kilit mekanizması
-
-// Finans verileri (mock veri, gerçek API ile değiştirilebilir)
-const financeData = [
-    "BIST 100: 8200.50",
-    "Altın (Gram): 2500.75 TL",
-    "USD/TRY: 34.15",
-    "EUR/TRY: 37.25"
-];
-
-let currentFinanceIndex = 0;
 
 // Boyut seviyesini takip etmek için değişken
 let sizeLevel = 0; // -2, -1, 0, 1, 2 gibi değerler alacak
@@ -95,31 +86,22 @@ function debounce(func, wait) {
     };
 }
 
-// Saat güncelleme (sayaç kaldırıldı)
+// Saat ve sayaç güncellemesi
 function updateClock() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     document.getElementById('clock').textContent = `${hours}:${minutes}`;
-}
-
-// Finans ticker’ını güncelle
-function updateFinanceTicker() {
-    const financeTicker = document.getElementById('finance-ticker');
-    if (financeTicker) {
-        financeTicker.textContent = financeData[currentFinanceIndex];
-        currentFinanceIndex = (currentFinanceIndex + 1) % financeData.length;
+    // Sayaç güncellemesi
+    document.getElementById('countdown').textContent = `${countdown}s`;
+    countdown--;
+    if (countdown < 0) {
+        countdown = 60; // 60 saniyeye sıfırla
+        fetchNews(); // Haberleri yenile
     }
 }
-
-// Saat ve finans ticker güncellemelerini başlat
 setInterval(updateClock, 1000);
-setInterval(updateFinanceTicker, 3000); // Her 3 saniyede bir finans verisi değişsin
 updateClock();
-updateFinanceTicker();
-
-// Periyodik haber yenileme (180 saniye = 180000 ms)
-setInterval(fetchNews, 180000);
 
 // Hamburger Menü Kontrolü
 const mobileMenu = document.getElementById('mobile-menu');

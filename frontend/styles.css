@@ -70,12 +70,11 @@ body {
     gap: 15px;
 }
 
-#finance-ticker {
+#countdown {
     font-size: 16px;
     font-weight: bold;
     color: white;
     margin-right: 10px;
-    min-width: 150px; /* Yeterli alan sağlamak için */
 }
 
 #clock,
@@ -549,10 +548,6 @@ body {
         display: inline-block;
         padding: 5px 10px;
         font-size: 14px;
-    }
-
-    #finance-ticker {
-        display: none; /* Mobilde finans ticker’ını gizle */
     }
 }
 
