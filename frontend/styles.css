@@ -251,10 +251,12 @@ body {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* .news-item:hover efekti kaldırıldı
 .news-item:hover {
     transform: translateY(-3px);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
 }
+*/
 
 .news-image {
     width: 100%;
