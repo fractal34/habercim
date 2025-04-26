@@ -89,6 +89,32 @@ function debounce(func, wait) {
     };
 }
 
+// Tema değiştirme mantığı
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
+const currentTheme = localStorage.getItem('theme') || 'light';
+
+// Sayfayı yüklerken temayı uygula
+document.documentElement.setAttribute('data-theme', currentTheme);
+if (currentTheme === 'dark') {
+    themeToggleBtn.textContent = '🌙';
+} else {
+    themeToggleBtn.textContent = '☀️';
+}
+
+// Tema değiştirme butonuna olay dinleyici
+themeToggleBtn.addEventListener('click', () => {
+    let theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeToggleBtn.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggleBtn.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+    }
+});
+
 // Saat güncellemesi
 function updateClock() {
     const now = new Date();

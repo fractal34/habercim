@@ -1,5 +1,90 @@
 /* Modernize Edilmiş CSS (1. versiyon baz alınarak güncellendi) */
 
+/* CSS Değişkenleri ile Tema Tanımları */
+:root {
+    /* Aydınlık Tema (Varsayılan) */
+    --background-color: #f0f0f0;
+    --text-color: #333;
+    --header-bg: #ff4500;
+    --header-text-color: white;
+    --category-menu-bg: #e03e00;
+    --category-menu-border-top: #ff6a36;
+    --category-menu-border-bottom: #d13700;
+    --category-btn-bg: #333;
+    --category-btn-text: white;
+    --category-btn-active-bg: #fff;
+    --category-btn-active-text: #ff4500;
+    --source-menu-bg: #2d3123;
+    --source-menu-text: white;
+    --source-menu-border-top: #ff6a36;
+    --source-menu-border-bottom: #d13700;
+    --main-content-bg: #fff;
+    --news-list-bg: #f8f8f8;
+    --news-list-border: #ccc;
+    --news-item-border: #ddd;
+    --news-item-bg: transparent; /* Arka planı şeffaf bırakıyoruz, çünkü news-title ve news-date zaten opak */
+    --news-title-bg: rgba(0, 0, 0, 0.5); /* Haber başlığı arka planı */
+    --news-title-text: white;
+    --news-date-bg: rgba(0, 0, 0, 0.3);
+    --news-date-text: white;
+    --news-detail-bg: #e9e9e9;
+    --news-new-bg: #ff0000;
+    --news-new-text: white;
+    --mobile-menu-bg: rgba(0, 0, 0, 0.9);
+    --mobile-menu-text: white;
+    --settings-btn-bg: #1f1717;
+    --settings-btn-text: white;
+    --settings-btn-hover-bg: #da190b;
+    --overlay-bg: #fff;
+    --overlay-header-bg: #f0f0f0;
+    --overlay-header-border: #ccc;
+    --scrollbar-track: #f1f1f1;
+    --scrollbar-thumb: #ccc;
+    --scrollbar-thumb-hover: #aaa;
+}
+
+[data-theme="dark"] {
+    /* Karanlık Tema */
+    --background-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --header-bg: #cc3700;
+    --header-text-color: #e0e0e0;
+    --category-menu-bg: #b03200;
+    --category-menu-border-top: #cc5630;
+    --category-menu-border-bottom: #a02c00;
+    --category-btn-bg: #444;
+    --category-btn-text: #e0e0e0;
+    --category-btn-active-bg: #666;
+    --category-btn-active-text: #ff4500;
+    --source-menu-bg: #1f2317;
+    --source-menu-text: #e0e0e0;
+    --source-menu-border-top: #cc5630;
+    --source-menu-border-bottom: #a02c00;
+    --main-content-bg: #2c2c2c;
+    --news-list-bg: #333;
+    --news-list-border: #555;
+    --news-item-border: #555;
+    --news-item-bg: transparent;
+    --news-title-bg: rgba(0, 0, 0, 0.7);
+    --news-title-text: #e0e0e0;
+    --news-date-bg: rgba(0, 0, 0, 0.5);
+    --news-date-text: #e0e0e0;
+    --news-detail-bg: #444;
+    --news-new-bg: #cc0000;
+    --news-new-text: #e0e0e0;
+    --mobile-menu-bg: rgba(30, 30, 30, 0.9);
+    --mobile-menu-text: #e0e0e0;
+    --settings-btn-bg: #2f2727;
+    --settings-btn-text: #e0e0e0;
+    --settings-btn-hover-bg: #b01509;
+    --overlay-bg: #2c2c2c;
+    --overlay-header-bg: #444;
+    --overlay-header-border: #666;
+    --scrollbar-track: #333;
+    --scrollbar-thumb: #666;
+    --scrollbar-thumb-hover: #888;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -8,8 +93,8 @@
 }
 
 body {
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: var(--background-color);
+    color: var(--text-color);
     height: 100vh;
     overflow: hidden;
 }
@@ -21,8 +106,8 @@ body {
 }
 
 .header {
-    background-color: #ff4500;
-    color: white;
+    background-color: var(--header-bg);
+    color: var(--header-text-color);
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     position: relative;
     z-index: 10;
@@ -39,7 +124,7 @@ body {
     display: none;
     background: none;
     border: none;
-    color: white;
+    color: var(--header-text-color);
     font-size: 24px;
     cursor: pointer;
     animation: bounce 1s infinite; /* Zıplama animasyonu */
@@ -60,7 +145,7 @@ body {
 .logo {
     font-size: 36px;
     font-weight: bold;
-    color: white;
+    color: var(--header-text-color);
     text-decoration: none;
 }
 
@@ -73,7 +158,7 @@ body {
 #finance-ticker {
     font-size: 16px;
     font-weight: bold;
-    color: white;
+    color: var(--header-text-color);
     margin-right: 10px;
     white-space: nowrap; /* Metnin taşmasını önler */
 }
@@ -82,20 +167,29 @@ body {
 .language {
     font-size: 16px;
     font-weight: bold;
+    color: var(--header-text-color);
 }
 
 .language {
     cursor: pointer;
 }
 
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--header-text-color);
+}
+
 .category-menu {
     display: flex;
-    background-color: #e03e00;
+    background-color: var(--category-menu-bg);
     padding: 8px 20px;
     overflow-x: auto;
     white-space: nowrap;
-    border-top: 1px solid #ff6a36;
-    border-bottom: 1px solid #d13700;
+    border-top: 1px solid var(--category-menu-border-top);
+    border-bottom: 1px solid var(--category-menu-border-bottom);
     align-items: center;
     justify-content: space-between;
 }
@@ -107,9 +201,9 @@ body {
 }
 
 .size-btn {
-    background-color: #333;
+    background-color: var(--category-btn-bg);
     border: none;
-    color: white;
+    color: var(--category-btn-text);
     font-size: 16px;
     font-weight: bold;
     padding: 8px 12px;
@@ -129,12 +223,12 @@ body {
 
 .category-source-menu {
     display: flex;
-    background-color: #2d3123;
+    background-color: var(--source-menu-bg);
     padding: 11px 20px;
     overflow-x: auto;
     white-space: nowrap;
-    border-top: 1px solid #ff6a36;
-    border-bottom: 1px solid #d13700;
+    border-top: 1px solid var(--source-menu-border-top);
+    border-bottom: 1px solid var(--source-menu-border-bottom);
     justify-content: flex-start;
     align-items: flex-start;
     gap: 0;
@@ -143,7 +237,7 @@ body {
 
 .category-source-menu:empty::after {
     content: "Kaynaklar yükleniyor...";
-    color: white;
+    color: var(--source-menu-text);
     font-size: 14px;
     padding: 5px;
 }
@@ -158,7 +252,7 @@ body {
     display: inline-block;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
-    color: white;
+    color: var(--source-menu-text);
     align-content: center;
     margin: 0;
 }
@@ -167,7 +261,7 @@ body {
     display: flex;
     align-items: center;
     margin-right: 2px;
-    color: white;
+    color: var(--source-menu-text);
     font-size: 14px;
     text-align: left;
 }
@@ -178,9 +272,9 @@ body {
 }
 
 .category-btn {
-    background-color: #333;
+    background-color: var(--category-btn-bg);
     border: none;
-    color: white;
+    color: var(--category-btn-text);
     font-size: 14px;
     font-weight: bold;
     padding: 8px 18px;
@@ -204,12 +298,12 @@ body {
 }
 
 .category-btn.active {
-    background-color: #fff;
-    color: #ff4500;
+    background-color: var(--category-btn-active-bg);
+    color: var(--category-btn-active-text);
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
 }
 
-/* Renkli kategoriler için eski yapı da korunabilir (isteğe bağlı) */
+/* Renkli kategoriler için eski yapı */
 .category-btn.active[data-category="Son Dakika"] { background-color: #ff0000; color: white; }
 .category-btn.active[data-category="Spor"] { background-color: #008000; color: white; }
 .category-btn.active[data-category="Magazin"] { background-color: #800080; color: white; }
@@ -224,16 +318,16 @@ body {
     display: flex;
     flex: 1;
     overflow: hidden;
-    background-color: #fff;
-    border-top: 3px solid #ccc;
+    background-color: var(--main-content-bg);
+    border-top: 3px solid var(--news-list-border);
 }
 
 #news-list {
     flex: 0 0 60%;
     overflow-y: auto;
     padding: 15px;
-    background-color: #f8f8f8;
-    border-right: 1px solid #ccc;
+    background-color: var(--news-list-bg);
+    border-right: 1px solid var(--news-list-border);
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 15px;
@@ -241,16 +335,16 @@ body {
 }
 
 .news-item {
-    border: 1px solid #ddd;
+    border: 1px solid var(--news-item-border);
     border-radius: 8px;
-    /* overflow: hidden; kaldırıldı */
     cursor: pointer;
     display: flex;
     flex-direction: column;
     height: 220px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative; /* .news-new için pozisyon referansı */
+    position: relative;
+    background-color: var(--news-item-bg);
 }
 
 .news-item:hover {
@@ -263,8 +357,8 @@ body {
     height: 110px;
     object-fit: cover;
     background-color: #eee;
-    border-bottom: 1px solid #eee;
-    overflow: hidden; /* Taşmayı burada kontrol et */
+    border-bottom: 1px solid var(--news-item-border);
+    overflow: hidden;
 }
 
 .news-title {
@@ -277,22 +371,23 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
-    color: white;
+    background-color: var(--news-title-bg);
+    color: var(--news-title-text);
 }
 
 .news-date {
     font-size: 11px;
-    color: #fff;
     text-align: center;
     padding: 3px 5px;
     border-radius: 4px;
     margin: 8px;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: var(--news-date-bg);
+    color: var(--news-date-text);
 }
 
 .news-detail {
     flex: 0 0 40%;
-    background-color: #e9e9e9;
+    background-color: var(--news-detail-bg);
     overflow: hidden;
     position: relative;
 }
@@ -308,12 +403,12 @@ body {
     position: absolute;
     top: 5px;
     left: 5px;
-    background-color: #ff0000;
-    color: white;
+    background-color: var(--news-new-bg);
+    color: var(--news-new-text);
     font-size: 12px;
     padding: 2px 5px;
     border-radius: 3px;
-    z-index: 10; /* Daha yüksek bir z-index */
+    z-index: 10;
     display: block !important;
     opacity: 1 !important;
 }
@@ -330,7 +425,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: var(--mobile-menu-bg);
     z-index: 100;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
@@ -347,7 +442,7 @@ body {
     right: 15px;
     background: none;
     border: none;
-    color: white;
+    color: var(--mobile-menu-text);
     font-size: 24px;
     cursor: pointer;
 }
@@ -371,7 +466,7 @@ body {
 .mobile-category-title {
     font-size: 16px;
     font-weight: bold;
-    color: white;
+    color: var(--mobile-menu-text);
     margin-bottom: 10px;
     display: block;
 }
@@ -379,7 +474,7 @@ body {
 .mobile-source-item {
     display: flex;
     align-items: center;
-    color: white;
+    color: var(--mobile-menu-text);
     font-size: 14px;
     margin: 5px 0;
 }
@@ -401,14 +496,14 @@ body {
     margin: 5px;
     border: none;
     border-radius: 5px;
-    background-color: #1f1717;
-    color: white;
+    background-color: var(--settings-btn-bg);
+    color: var(--settings-btn-text);
     cursor: pointer;
     font-size: 14px;
 }
 
 .settings-btn:hover {
-    background-color: #da190b;
+    background-color: var(--settings-btn-hover-bg);
 }
 
 /* Haber Detay Overlay */
@@ -418,7 +513,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--overlay-bg);
     z-index: 200;
     display: none;
     flex-direction: column;
@@ -429,9 +524,9 @@ body {
 }
 
 .header-frame {
-    background-color: #f0f0f0;
+    background-color: var(--overlay-header-bg);
     padding: 10px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--overlay-header-border);
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -440,8 +535,8 @@ body {
 }
 
 .close-overlay-btn {
-    background-color: #333;
-    color: white;
+    background-color: var(--category-btn-bg);
+    color: var(--category-btn-text);
     border: none;
     padding: 8px 16px;
     font-size: 14px;
@@ -456,16 +551,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #ccc;
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #aaa;
+    background: var(--scrollbar-thumb-hover);
 }
 
 /* Responsive */
