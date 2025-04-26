@@ -73,14 +73,8 @@ let lastRenderedNewsCount = 0;
 let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
 let isFetching = false; // Fetch kilit mekanizması
 
-// Finans verileri (mock veri, gerçek API ile değiştirilebilir)
-const financeData = [
-    "BIST 100: 8200.50",
-    "Altın (Gram): 2500.75 TL",
-    "USD/TRY: 34.15",
-    "EUR/TRY: 37.25"
-];
-
+// Finans verileri için değişkenler
+let financeData = [];
 let currentFinanceIndex = 0;
 
 // Boyut seviyesini takip etmek için değişken
@@ -95,7 +89,7 @@ function debounce(func, wait) {
     };
 }
 
-// Saat güncellemesi (sayaç kaldırıldı)
+// Saat güncellemesi
 function updateClock() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
@@ -103,11 +97,61 @@ function updateClock() {
     document.getElementById('clock').textContent = `${hours}:${minutes}`;
 }
 
+// Dovizmix widget’ından finans verilerini çekme
+async function fetchFinanceDataFromWidget() {
+    try {
+        // Widget’ın yüklendiğinden emin olmak için bir süre bekleyelim
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const widgetContainer = document.querySelector('#finance-widget-container');
+        if (!widgetContainer) {
+            console.error("Widget container bulunamadı!");
+            financeData = ["Veri alınamadı"];
+            return;
+        }
+
+        // Dovizmix widget’ı genellikle bir tablo oluşturur
+        const rows = widgetContainer.querySelectorAll('tr');
+        if (!rows || rows.length === 0) {
+            console.error("Widget verileri yüklenemedi!");
+            financeData = ["Veri yüklenemedi"];
+            return;
+        }
+
+        // Verileri parse et
+        financeData = [];
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 2) {
+                const label = cells[0]?.textContent.trim(); // Örneğin: "USD", "EUR", "Gram Altın"
+                const value = cells[1]?.textContent.trim(); // Örneğin: "38.42", "43.93"
+                if (label && value) {
+                    // Label ve value’yu uygun şekilde formatla
+                    let formattedLabel = label;
+                    if (label.includes('Dolar')) formattedLabel = 'USD/TRY';
+                    if (label.includes('Euro')) formattedLabel = 'EUR/TRY';
+                    if (label.includes('Gram')) formattedLabel = 'Altın (Gram)';
+                    financeData.push(`${formattedLabel}: ${value} TL`);
+                }
+            }
+        });
+
+        // Eğer veri alınamazsa fallback
+        if (financeData.length === 0) {
+            financeData = ["USD/TRY: 38.42 TL", "EUR/TRY: 43.93 TL", "Altın (Gram): 4231.98 TL"];
+        }
+    } catch (error) {
+        console.error("Widget’tan veri çekme hatası:", error);
+        financeData = ["Bağlantı hatası"];
+    }
+    updateFinanceTicker();
+}
+
 // Finans ticker’ını güncelle
 function updateFinanceTicker() {
     const financeTicker = document.getElementById('finance-ticker');
     if (financeTicker) {
-        financeTicker.textContent = financeData[currentFinanceIndex];
+        financeTicker.textContent = financeData[currentFinanceIndex] || "Veri yükleniyor...";
         currentFinanceIndex = (currentFinanceIndex + 1) % financeData.length;
     }
 }
@@ -115,8 +159,9 @@ function updateFinanceTicker() {
 // Saat ve finans ticker güncellemelerini başlat
 setInterval(updateClock, 1000);
 setInterval(updateFinanceTicker, 3000); // Her 3 saniyede bir finans verisi değişsin
+fetchFinanceDataFromWidget();
+setInterval(fetchFinanceDataFromWidget, 60000); // Her 60 saniyede bir verileri yenile
 updateClock();
-updateFinanceTicker();
 
 // Periyodik haber yenileme (180 saniye = 180000 ms)
 setInterval(fetchNews, 180000);

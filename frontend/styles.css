@@ -75,6 +75,7 @@ body {
     font-weight: bold;
     color: white;
     margin-right: 10px;
+    white-space: nowrap; /* Metnin taşmasını önler */
 }
 
 #clock,
