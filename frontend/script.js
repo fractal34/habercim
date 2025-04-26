@@ -199,7 +199,7 @@ const closeMenuBtn = document.getElementById('close-menu-btn');
 
 hamburgerBtn.addEventListener('click', () => {
     mobileMenu.classList.add('active');
-    updateSourceBar(); // Menü açıldığında kaynak barını güncelle
+    updateCategorySources(); // Menü açıldığında kaynak barını güncelle
 });
 
 closeMenuBtn.addEventListener('click', () => {
@@ -224,7 +224,7 @@ function resetCategories() {
     tempSelectedSources = JSON.parse(JSON.stringify(selectedSources));
 
     // Arayüzü güncelle
-    updateSourceBar();
+    updateCategorySources();
     fetchNews();
 
     // localStorage'ı güncelle
@@ -237,8 +237,8 @@ document.getElementById('reset-categories').addEventListener('click', resetCateg
 document.getElementById('reset-categories-mobile').addEventListener('click', resetCategories);
 
 // Kaynak seçim barını güncelle (hem masaüstü hem mobil için)
-function updateSourceBar() {
-    console.log('updateSourceBar called. Selected Categories:', selectedCategories);
+function updateCategorySources() {
+    console.log('updateCategorySources called. Selected Categories:', selectedCategories);
     const sourceMenu = document.querySelector('.category-source-menu');
     const mobileCategories = document.getElementById('mobile-categories');
 
@@ -248,7 +248,7 @@ function updateSourceBar() {
     }
 
     // Masaüstü için kaynak barını güncelle
-    sourceMenu.innerHTML = '<span class="category-source-title">KAYNAKLAR</span>';
+    sourceMenu.innerHTML = '';
     console.log('Cleared sourceMenu for desktop.');
 
     // Mobil için menüyü güncelle
@@ -302,7 +302,7 @@ function updateSourceBar() {
                                 tempSelectedCategories = tempSelectedCategories.filter(cat => cat !== category);
                             }
                         }
-                        // Onayla butonuna basılana kadar updateSourceBar ve fetchNews çağrılmayacak
+                        // Onayla butonuna basılana kadar updateCategorySources ve fetchNews çağrılmayacak
                     });
 
                     sourceLabel.appendChild(sourceCheckbox);
@@ -326,38 +326,42 @@ function updateSourceBar() {
             return;
         }
 
+        const categoryContainer = document.createElement('div');
+        categoryContainer.classList.add('category-source-item');
+
         const categoryTitle = document.createElement('span');
-        categoryTitle.className = 'category-source-title';
-        categoryTitle.textContent = ` - ${category.toUpperCase()}: `;
-        sourceMenu.appendChild(categoryTitle);
+        categoryTitle.classList.add('category-source-title');
+        categoryTitle.textContent = category.toUpperCase();
+        categoryTitle.dataset.category = category; // data-category özniteliği ekleniyor
+        categoryContainer.appendChild(categoryTitle);
         console.log(`Added category title for ${category}`);
 
         Object.keys(sources).forEach(source => {
-            const label = document.createElement('label');
-            label.className = 'source-item';
+            const sourceItem = document.createElement('label');
+            sourceItem.classList.add('source-item');
+
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            checkbox.checked = selectedSources[category].includes(source);
-            checkbox.dataset.category = category;
-            checkbox.dataset.source = source;
+            checkbox.value = source;
+            checkbox.checked = selectedSources[category]?.includes(source) || false;
 
             checkbox.addEventListener('change', () => {
                 if (checkbox.checked) {
-                    if (!selectedSources[category].includes(source)) {
-                        selectedSources[category].push(source);
-                    }
+                    if (!selectedSources[category]) selectedSources[category] = [];
+                    selectedSources[category].push(source);
                 } else {
                     selectedSources[category] = selectedSources[category].filter(s => s !== source);
                 }
-                tempSelectedSources = JSON.parse(JSON.stringify(selectedSources));
-                debouncedFetchNews();
+                localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
+                fetchNews();
             });
 
-            label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(source));
-            sourceMenu.appendChild(label);
-            console.log(`Added source ${source} for category ${category}`);
+            sourceItem.appendChild(checkbox);
+            sourceItem.appendChild(document.createTextNode(source));
+            categoryContainer.appendChild(sourceItem);
         });
+
+        sourceMenu.appendChild(categoryContainer);
     });
 
     // Masaüstü kategori butonlarını güncelle
@@ -373,19 +377,18 @@ function updateSourceBar() {
     localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
     localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
     console.log('Updated source bar for desktop and saved selections to localStorage.');
-
-    // Onayla butonuna olay dinleyici ekle
-    const confirmBtn = document.getElementById('confirm-categories-mobile');
-    confirmBtn.addEventListener('click', () => {
-        selectedCategories = [...tempSelectedCategories];
-        selectedSources = JSON.parse(JSON.stringify(tempSelectedSources));
-        updateSourceBar();
-        fetchNews();
-        mobileMenu.classList.remove('active'); // Menüyü kapat
-        localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
-        localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
-    });
 }
+
+// Onayla butonuna olay dinleyici ekle
+document.getElementById('confirm-categories-mobile').addEventListener('click', () => {
+    selectedCategories = [...tempSelectedCategories];
+    selectedSources = JSON.parse(JSON.stringify(tempSelectedSources));
+    updateCategorySources();
+    fetchNews();
+    mobileMenu.classList.remove('active'); // Menüyü kapat
+    localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+    localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
+});
 
 // Kategori butonlarını dinle
 document.querySelectorAll('.category-btn').forEach(button => {
@@ -411,7 +414,7 @@ document.querySelectorAll('.category-btn').forEach(button => {
             }
         });
 
-        updateSourceBar();
+        updateCategorySources();
         debouncedFetchNews();
         // Seçimleri localStorage'a kaydet
         localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
@@ -946,5 +949,5 @@ document.getElementById('news-list').addEventListener('scroll', function () {
 });
 
 // İlk yükleme
-updateSourceBar();
+updateCategorySources();
 fetchNews();
