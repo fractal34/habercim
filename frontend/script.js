@@ -77,26 +77,6 @@ let isFetching = false; // Fetch kilit mekanizması
 let financeData = [];
 let currentFinanceIndex = 0;
 
-// Boyut seviyesini takip etmek için değişken
-let sizeLevel = 0; // -2, -1, 0, 1, 2 gibi değerler alacak
-
-// Debounce fonksiyonu
-function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
-
-// Saat güncellemesi
-function updateClock() {
-    const now = new Date();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    document.getElementById('clock').textContent = `${hours}:${minutes}`;
-}
-
 // Dovizmix widget’ından finans verilerini çekme
 async function fetchFinanceDataFromWidget() {
     try {
@@ -110,7 +90,7 @@ async function fetchFinanceDataFromWidget() {
             return;
         }
 
-        // Dovizmix widget’ı genellikle bir tablo oluşturur
+        // Dovizmix widget’ı bir tablo oluşturur
         const rows = widgetContainer.querySelectorAll('tr');
         if (!rows || rows.length === 0) {
             console.error("Widget verileri yüklenemedi!");
@@ -123,22 +103,25 @@ async function fetchFinanceDataFromWidget() {
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 2) {
-                const label = cells[0]?.textContent.trim(); // Örneğin: "USD", "EUR", "Gram Altın"
-                const value = cells[1]?.textContent.trim(); // Örneğin: "38.42", "43.93"
+                const label = cells[0]?.textContent.trim(); // Örneğin: "Dolar", "Euro", "Gram Altın", "BIST 100"
+                const value = cells[1]?.textContent.trim(); // Örneğin: "38.42", "43.93", "4231.98", "9654.32"
                 if (label && value) {
-                    // Label ve value’yu uygun şekilde formatla
                     let formattedLabel = label;
                     if (label.includes('Dolar')) formattedLabel = 'USD/TRY';
                     if (label.includes('Euro')) formattedLabel = 'EUR/TRY';
                     if (label.includes('Gram')) formattedLabel = 'Altın (Gram)';
-                    financeData.push(`${formattedLabel}: ${value} TL`);
+                    if (label.includes('BIST')) formattedLabel = 'BIST 100';
+                    // Sadece istediğimiz verileri ekle: USD, EUR, Altın, BIST 100
+                    if (['USD/TRY', 'EUR/TRY', 'Altın (Gram)', 'BIST 100'].includes(formattedLabel)) {
+                        financeData.push(`${formattedLabel}: ${value}${formattedLabel === 'BIST 100' ? '' : ' TL'}`);
+                    }
                 }
             }
         });
 
         // Eğer veri alınamazsa fallback
         if (financeData.length === 0) {
-            financeData = ["USD/TRY: 38.42 TL", "EUR/TRY: 43.93 TL", "Altın (Gram): 4231.98 TL"];
+            financeData = ["USD/TRY: 38.42 TL", "EUR/TRY: 43.93 TL", "Altın (Gram): 4231.98 TL", "BIST 100: 9654.32"];
         }
     } catch (error) {
         console.error("Widget’tan veri çekme hatası:", error);
@@ -157,11 +140,9 @@ function updateFinanceTicker() {
 }
 
 // Saat ve finans ticker güncellemelerini başlat
-setInterval(updateClock, 1000);
 setInterval(updateFinanceTicker, 3000); // Her 3 saniyede bir finans verisi değişsin
 fetchFinanceDataFromWidget();
 setInterval(fetchFinanceDataFromWidget, 60000); // Her 60 saniyede bir verileri yenile
-updateClock();
 
 // Periyodik haber yenileme (180 saniye = 180000 ms)
 setInterval(fetchNews, 180000);
