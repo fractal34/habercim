@@ -96,50 +96,7 @@
     --scrollbar-thumb-hover: #888;
 }
 
-/* Kategori Butonları */
-.category-btn.active {
-    background-color: var(--category-btn-active-bg);
-    color: var(--category-btn-active-text);
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-}
 
-/* Kategori Renkleri */
-.category-btn.active[data-category="Son Dakika"] { background-color: var(--category-son-dakika); color: white; }
-.category-btn.active[data-category="Spor"] { background-color: var(--category-spor); color: white; }
-.category-btn.active[data-category="Magazin"] { background-color: var(--category-magazin); color: white; }
-.category-btn.active[data-category="Dünya"] { background-color: var(--category-dunya); color: white; }
-.category-btn.active[data-category="Gündem"] { background-color: var(--category-gundem); color: white; }
-.category-btn.active[data-category="Politika"] { background-color: var(--category-politika); color: white; }
-.category-btn.active[data-category="Otomobil"] { background-color: var(--category-otomobil); color: white; }
-.category-btn.active[data-category="Teknoloji"] { background-color: var(--category-teknoloji); color: white; }
-.category-btn.active[data-category="Ekonomi"] { background-color: var(--category-ekonomi); color: white; }
-
-/* Kaynak Barındaki Kategori Başlıkları */
-.category-source-title {
-    font-size: 13px;
-    font-weight: bold;
-    line-height: 0.5;
-    flex-grow: 0;
-    padding: 5px 2px;
-    overflow: hidden;
-    display: inline-block;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    color: var(--source-menu-text);
-    align-content: center;
-    margin: 0;
-}
-
-/* Kategori Başlıklarının Renkleri */
-.category-source-title[data-category="Son Dakika"] { color: var(--category-son-dakika); }
-.category-source-title[data-category="Spor"] { color: var(--category-spor); }
-.category-source-title[data-category="Magazin"] { color: var(--category-magazin); }
-.category-source-title[data-category="Dünya"] { color: var(--category-dunya); }
-.category-source-title[data-category="Gündem"] { color: var(--category-gundem); }
-.category-source-title[data-category="Politika"] { color: var(--category-politika); }
-.category-source-title[data-category="Otomobil"] { color: var(--category-otomobil); }
-.category-source-title[data-category="Teknoloji"] { color: var(--category-teknoloji); }
-.category-source-title[data-category="Ekonomi"] { color: var(--category-ekonomi); }
 
 * {
     margin: 0;
