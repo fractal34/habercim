@@ -64,21 +64,21 @@ Object.keys(categoryRssUrls).forEach(category => {
 
 // Geçici seçimler için değişkenler
 let tempSelectedCategories = [...selectedCategories];
-let tempSelectedSources = JSON.parse(JSON.stringify(selectedSources)); // Derin kopya
+let tempSelectedSources = JSON.parse(JSON.stringify(selectedSources));
 
 let allNews = [];
 let displayedNewsCount = 50;
 let isLoadingMore = false;
 let lastRenderedNewsCount = 0;
-let lastFetchTime = new Date(); // Yeni haberleri belirlemek için
-let isFetching = false; // Fetch kilit mekanizması
+let lastFetchTime = new Date();
+let isFetching = false;
 
 // Finans verileri için değişkenler
 let financeData = [];
 let currentFinanceIndex = 0;
 
 // Boyut seviyesini takip etmek için değişken
-let sizeLevel = 0; // -2, -1, 0, 1, 2 gibi değerler alacak
+let sizeLevel = 0;
 
 // Debounce fonksiyonu
 function debounce(func, wait) {
@@ -89,11 +89,79 @@ function debounce(func, wait) {
     };
 }
 
+// Çerez Yönetimi
+const cookieBanner = document.getElementById('cookie-banner');
+const cookieAcceptBtn = document.getElementById('cookie-accept');
+const cookieRejectBtn = document.getElementById('cookie-reject');
+const cookieSettingsBtn = document.getElementById('cookie-settings');
+const cookieSettingsModal = document.getElementById('cookie-settings-modal');
+const cookieSaveBtn = document.getElementById('cookie-save');
+const cookieCancelBtn = document.getElementById('cookie-cancel');
+const analyticsCookiesCheckbox = document.getElementById('analytics-cookies');
+const financeWidgetContainer = document.getElementById('finance-widget-container');
+
+// Çerez tercihlerini kontrol et
+function checkCookieConsent() {
+    const consent = localStorage.getItem('cookieConsent');
+    if (!consent) {
+        cookieBanner.style.display = 'block';
+    } else {
+        const preferences = JSON.parse(consent);
+        if (preferences.analytics) {
+            loadFinanceWidget();
+        }
+    }
+}
+
+// Finans widget'ını yükle
+function loadFinanceWidget() {
+    financeWidgetContainer.style.display = 'block';
+    const script = financeWidgetContainer.querySelector('script');
+    if (!script.src.includes('loaded=true')) {
+        script.src += '&loaded=true';
+    }
+    fetchFinanceDataFromWidget(); // Widget yüklendikten sonra finans verilerini çek
+}
+
+// Çerez tercihlerini kaydet
+function saveCookiePreferences(analytics) {
+    const preferences = {
+        essential: true,
+        analytics: analytics
+    };
+    localStorage.setItem('cookieConsent', JSON.stringify(preferences));
+    cookieBanner.style.display = 'none';
+    cookieSettingsModal.style.display = 'none';
+    if (analytics) {
+        loadFinanceWidget();
+    }
+}
+
+// Çerez Olay Dinleyicileri
+cookieAcceptBtn.addEventListener('click', () => {
+    saveCookiePreferences(true);
+});
+
+cookieRejectBtn.addEventListener('click', () => {
+    saveCookiePreferences(false);
+});
+
+cookieSettingsBtn.addEventListener('click', () => {
+    cookieSettingsModal.style.display = 'flex';
+});
+
+cookieSaveBtn.addEventListener('click', () => {
+    saveCookiePreferences(analyticsCookiesCheckbox.checked);
+});
+
+cookieCancelBtn.addEventListener('click', () => {
+    cookieSettingsModal.style.display = 'none';
+});
+
 // Tema değiştirme mantığı
 const themeToggleBtn = document.getElementById('theme-toggle-btn');
 const currentTheme = localStorage.getItem('theme') || 'light';
 
-// Sayfayı yüklerken temayı uygula
 document.documentElement.setAttribute('data-theme', currentTheme);
 if (currentTheme === 'dark') {
     themeToggleBtn.textContent = '🌙';
@@ -101,7 +169,6 @@ if (currentTheme === 'dark') {
     themeToggleBtn.textContent = '☀️';
 }
 
-// Tema değiştirme butonuna olay dinleyici
 themeToggleBtn.addEventListener('click', () => {
     let theme = document.documentElement.getAttribute('data-theme');
     if (theme === 'dark') {
@@ -126,9 +193,7 @@ function updateClock() {
 // Dovizmix widget’ından finans verilerini çekme
 async function fetchFinanceDataFromWidget() {
     try {
-        // Widget’ın yüklendiğinden emin olmak için bir süre bekleyelim
         await new Promise(resolve => setTimeout(resolve, 2000));
-
         const widgetContainer = document.querySelector('#finance-widget-container');
         if (!widgetContainer) {
             console.error("Widget container bulunamadı!");
@@ -136,7 +201,6 @@ async function fetchFinanceDataFromWidget() {
             return;
         }
 
-        // Dovizmix widget’ı genellikle bir tablo oluşturur
         const rows = widgetContainer.querySelectorAll('tr');
         if (!rows || rows.length === 0) {
             console.error("Widget verileri yüklenemedi!");
@@ -144,15 +208,13 @@ async function fetchFinanceDataFromWidget() {
             return;
         }
 
-        // Verileri parse et
         financeData = [];
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length >= 2) {
-                const label = cells[0]?.textContent.trim(); // Örneğin: "USD", "EUR", "Gram Altın"
-                const value = cells[1]?.textContent.trim(); // Örneğin: "38.42", "43.93"
+                const label = cells[0]?.textContent.trim();
+                const value = cells[1]?.textContent.trim();
                 if (label && value) {
-                    // Label ve value’yu uygun şekilde formatla
                     let formattedLabel = label;
                     if (label.includes('Dolar')) formattedLabel = 'USD/TRY';
                     if (label.includes('Euro')) formattedLabel = 'EUR/TRY';
@@ -162,7 +224,6 @@ async function fetchFinanceDataFromWidget() {
             }
         });
 
-        // Eğer veri alınamazsa fallback
         if (financeData.length === 0) {
             financeData = ["USD/TRY: 38.42 TL", "EUR/TRY: 43.93 TL", "Altın (Gram): 4231.98 TL"];
         }
@@ -184,12 +245,11 @@ function updateFinanceTicker() {
 
 // Saat ve finans ticker güncellemelerini başlat
 setInterval(updateClock, 1000);
-setInterval(updateFinanceTicker, 3000); // Her 3 saniyede bir finans verisi değişsin
-fetchFinanceDataFromWidget();
-setInterval(fetchFinanceDataFromWidget, 60000); // Her 60 saniyede bir verileri yenile
+setInterval(updateFinanceTicker, 3000);
+setInterval(fetchFinanceDataFromWidget, 60000);
 updateClock();
 
-// Periyodik haber yenileme (180 saniye = 180000 ms)
+// Periyodik haber yenileme
 setInterval(fetchNews, 180000);
 
 // Hamburger Menü Kontrolü
@@ -199,7 +259,7 @@ const closeMenuBtn = document.getElementById('close-menu-btn');
 
 hamburgerBtn.addEventListener('click', () => {
     mobileMenu.classList.add('active');
-    updateSourceBar(); // Menü açıldığında kaynak barını güncelle
+    updateSourceBar();
 });
 
 closeMenuBtn.addEventListener('click', () => {
@@ -208,7 +268,6 @@ closeMenuBtn.addEventListener('click', () => {
 
 // Kategorileri sıfırlama fonksiyonu
 function resetCategories() {
-    // Sadece "Son Dakika" kategorisini ve "Milliyet" kaynağını aktif yap
     selectedCategories = ['Son Dakika'];
     selectedSources = {};
     Object.keys(categoryRssUrls).forEach(category => {
@@ -219,24 +278,20 @@ function resetCategories() {
         }
     });
 
-    // Geçici değişkenleri de güncelle
     tempSelectedCategories = [...selectedCategories];
     tempSelectedSources = JSON.parse(JSON.stringify(selectedSources));
 
-    // Arayüzü güncelle
     updateSourceBar();
     fetchNews();
 
-    // localStorage'ı güncelle
     localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
     localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
 }
 
-// "Kategorileri Sıfırla" butonuna olay dinleyici ekle (hem PC hem mobil için)
 document.getElementById('reset-categories').addEventListener('click', resetCategories);
 document.getElementById('reset-categories-mobile').addEventListener('click', resetCategories);
 
-// Kaynak seçim barını güncelle (hem masaüstü hem mobil için)
+// Kaynak seçim barını güncelle
 function updateSourceBar() {
     console.log('updateSourceBar called. Selected Categories:', selectedCategories);
     const sourceMenu = document.querySelector('.category-source-menu');
@@ -247,15 +302,9 @@ function updateSourceBar() {
         return;
     }
 
-    // Masaüstü için kaynak barını güncelle
     sourceMenu.innerHTML = '<span class="category-source-title">KAYNAKLAR</span>';
-    console.log('Cleared sourceMenu for desktop.');
-
-    // Mobil için menüyü güncelle
     mobileCategories.innerHTML = '';
-    console.log('Cleared mobileCategories.');
 
-    // Tüm kategoriler için başlık ve kaynaklar (mobil menüde)
     const allCategories = Object.keys(categoryRssUrls);
     const categoryPairs = [];
     for (let i = 0; i < allCategories.length; i += 2) {
@@ -270,13 +319,11 @@ function updateSourceBar() {
             const categoryDiv = document.createElement('div');
             categoryDiv.className = 'mobile-category-item';
 
-            // Kategori başlığı (checkbox olmadan)
             const categoryTitle = document.createElement('span');
             categoryTitle.className = 'mobile-category-title';
             categoryTitle.textContent = category.toUpperCase();
             categoryDiv.appendChild(categoryTitle);
 
-            // Kategoriye ait kaynaklar
             const sources = categoryRssUrls[category];
             if (sources) {
                 Object.keys(sources).forEach(source => {
@@ -302,7 +349,6 @@ function updateSourceBar() {
                                 tempSelectedCategories = tempSelectedCategories.filter(cat => cat !== category);
                             }
                         }
-                        // Onayla butonuna basılana kadar updateSourceBar ve fetchNews çağrılmayacak
                     });
 
                     sourceLabel.appendChild(sourceCheckbox);
@@ -316,9 +362,7 @@ function updateSourceBar() {
 
         mobileCategories.appendChild(categoryRow);
     });
-    console.log('Updated mobile categories menu.');
 
-    // Masaüstü için sadece seçili kategorilerin kaynaklarını göster
     selectedCategories.forEach(category => {
         const sources = categoryRssUrls[category];
         if (!sources) {
@@ -330,7 +374,6 @@ function updateSourceBar() {
         categoryTitle.className = 'category-source-title';
         categoryTitle.textContent = ` - ${category.toUpperCase()}: `;
         sourceMenu.appendChild(categoryTitle);
-        console.log(`Added category title for ${category}`);
 
         Object.keys(sources).forEach(source => {
             const label = document.createElement('label');
@@ -356,11 +399,9 @@ function updateSourceBar() {
             label.appendChild(checkbox);
             label.appendChild(document.createTextNode(source));
             sourceMenu.appendChild(label);
-            console.log(`Added source ${source} for category ${category}`);
         });
     });
 
-    // Masaüstü kategori butonlarını güncelle
     document.querySelectorAll('.category-btn').forEach(btn => {
         if (selectedCategories.includes(btn.dataset.category)) {
             btn.classList.add('active');
@@ -369,34 +410,18 @@ function updateSourceBar() {
         }
     });
 
-    // Seçimleri localStorage'a kaydet
     localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
     localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
-    console.log('Updated source bar for desktop and saved selections to localStorage.');
-
-    // Onayla butonuna olay dinleyici ekle
-    const confirmBtn = document.getElementById('confirm-categories-mobile');
-    confirmBtn.addEventListener('click', () => {
-        selectedCategories = [...tempSelectedCategories];
-        selectedSources = JSON.parse(JSON.stringify(tempSelectedSources));
-        updateSourceBar();
-        fetchNews();
-        mobileMenu.classList.remove('active'); // Menüyü kapat
-        localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
-        localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
-    });
 }
 
-// Kategori butonlarını dinle
 document.querySelectorAll('.category-btn').forEach(button => {
     button.addEventListener('click', () => {
         const category = button.dataset.category;
         if (selectedCategories.includes(category)) {
             selectedCategories = selectedCategories.filter(cat => cat !== category);
-            selectedSources[category] = []; // Kategori seçimi kalkarsa kaynaklar da sıfırlanır
+            selectedSources[category] = [];
         } else {
             selectedCategories.push(category);
-            // Varsayılan olarak tüm kaynakları seçili yap
             selectedSources[category] = Object.keys(categoryRssUrls[category]);
         }
 
@@ -413,30 +438,24 @@ document.querySelectorAll('.category-btn').forEach(button => {
 
         updateSourceBar();
         debouncedFetchNews();
-        // Seçimleri localStorage'a kaydet
         localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
         localStorage.setItem('selectedSources', JSON.stringify(selectedSources));
     });
 });
 
-// Tarih ayrıştırma fonksiyonu (iPhone uyumluluğu için)
+// Tarih ayrıştırma fonksiyonu
 function parsePubDate(pubDateStr) {
     if (!pubDateStr) {
         console.warn('No pubDate provided, using current date as fallback');
         return new Date();
     }
 
-    // Önce doğrudan Date ile dene
     let parsedDate = new Date(pubDateStr);
     if (!isNaN(parsedDate)) {
         return parsedDate;
     }
 
-    // Eğer başarısızsa, formatı elle ayrıştır
-    // Örnek format: "Tue, 15 Oct 2024 12:34:56 +0300" (RFC 2822)
-    // veya "2024-10-15T12:34:56+03:00" (ISO 8601)
     try {
-        // RFC 2822 formatını elle ayrıştır
         const parts = pubDateStr.match(/(\w+), (\d+) (\w+) (\d+) (\d+):(\d+):(\d+)(?:\s+\+(\d+))?/);
         if (parts) {
             const [, , day, monthStr, year, hour, minute, second, offset] = parts;
@@ -456,13 +475,11 @@ function parsePubDate(pubDateStr) {
             if (!isNaN(parsedDate)) return parsedDate;
         }
 
-        // ISO 8601 formatını dene
         if (pubDateStr.includes('T')) {
             parsedDate = new Date(pubDateStr);
             if (!isNaN(parsedDate)) return parsedDate;
         }
 
-        // Eğer hala başarısızsa, hata logla ve geçerli bir tarih döndür
         console.warn(`Unable to parse pubDate: ${pubDateStr}, using current date as fallback`);
         return new Date();
     } catch (error) {
@@ -474,13 +491,13 @@ function parsePubDate(pubDateStr) {
 // Boyut değiştirme fonksiyonu
 function updateNewsSize() {
     const newsItems = document.querySelectorAll('.news-item');
-    const baseHeight = isMobile ? 170 : 220; // Mobil için 170px (4 satır başlık için artırıldı), masaüstü için 220px
-    const baseImageHeight = isMobile ? 60 : 110; // Mobil için 60px, masaüstü için 110px
-    const baseTitleFontSize = isMobile ? 12 : 13; // Mobil için 12px, masaüstü için 13px
-    const baseDateFontSize = isMobile ? 10 : 11; // Mobil için 10px, masaüstü için 11px
+    const baseHeight = isMobile ? 170 : 220;
+    const baseImageHeight = isMobile ? 60 : 110;
+    const baseTitleFontSize = isMobile ? 12 : 13;
+    const baseDateFontSize = isMobile ? 10 : 11;
 
-    const heightIncrement = 10; // Her seviyede yükseklik artışı
-    const fontSizeIncrement = 1; // Her seviyede yazı boyutu artışı
+    const heightIncrement = 10;
+    const fontSizeIncrement = 1;
 
     const newHeight = baseHeight + (sizeLevel * heightIncrement);
     const newImageHeight = baseImageHeight + (sizeLevel * heightIncrement / 2);
@@ -498,14 +515,12 @@ function updateNewsSize() {
         if (date) date.style.fontSize = `${newDateFontSize}px`;
     });
 
-    // Grid boyutlarını güncellemek için min genişliği de artır
     const newsList = document.getElementById('news-list');
-    const baseMinWidth = isMobile ? 100 : 160; // Mobil için 100px, masaüstü için 160px
+    const baseMinWidth = isMobile ? 100 : 160;
     const newMinWidth = baseMinWidth + (sizeLevel * heightIncrement);
     newsList.style.gridTemplateColumns = `repeat(auto-fill, minmax(${newMinWidth}px, 1fr))`;
 }
 
-// Boyut artırma ve azaltma butonları (Masaüstü için)
 document.getElementById('increase-size').addEventListener('click', () => {
     if (sizeLevel < 2) {
         sizeLevel++;
@@ -520,7 +535,6 @@ document.getElementById('decrease-size').addEventListener('click', () => {
     }
 });
 
-// Mobil için boyut artırma ve azaltma butonları (header-right içinde)
 document.getElementById('increase-size-mobile').addEventListener('click', () => {
     if (sizeLevel < 2) {
         sizeLevel++;
@@ -537,13 +551,12 @@ document.getElementById('decrease-size-mobile').addEventListener('click', () => 
 
 // RSS'ten haberleri çek
 async function fetchNews() {
-    // Eğer zaten bir fetch işlemi devam ediyorsa, yeni bir işlem başlatma
     if (isFetching) {
         console.log('Fetch already in progress, skipping this call.');
         return;
     }
 
-    isFetching = true; // Kilidi aç
+    isFetching = true;
     console.log('Starting fetchNews...');
 
     const newsList = document.getElementById('news-list');
@@ -554,7 +567,7 @@ async function fetchNews() {
 
     if (selectedCategories.length === 0) {
         newsList.innerHTML = '<p>Lütfen en az bir kategori seçin</p>';
-        isFetching = false; // Kilidi kapat
+        isFetching = false;
         return;
     }
 
@@ -604,12 +617,12 @@ async function fetchNews() {
                 const text = await response.text();
                 const parser = new DOMParser();
                 const xml = parser.parseFromString(text, 'text/xml');
-                const items = Array.from(xml.querySelectorAll('item')); // Sınırlama olmadan tüm haberleri al
+                const items = Array.from(xml.querySelectorAll('item'));
 
                 console.log(`Fetched ${items.length} items for category ${category} from ${source}`);
 
                 const now = new Date();
-                const threeDaysInMs = 72 * 60 * 60 * 1000; // 72 saat (3 gün) milisaniye cinsinden
+                const threeDaysInMs = 72 * 60 * 60 * 1000;
 
                 items.forEach(item => {
                     let link = item.querySelector('link')?.textContent || '';
@@ -635,7 +648,6 @@ async function fetchNews() {
                         return;
                     }
 
-                    // Haber ID'sini çıkar
                     let newsId;
                     let sourcePrefix = '';
                     if (link.includes('milliyet.com.tr')) {
@@ -667,18 +679,16 @@ async function fetchNews() {
                         sourcePrefix = 'unknown-';
                     }
 
-                    // Benzersiz bir anahtar oluştur
                     const title = item.querySelector('title')?.textContent || 'Başlık Yok';
                     const pubDateStr = item.querySelector('pubDate')?.textContent;
                     const pubDate = parsePubDate(pubDateStr);
 
-                    // 72 saatten eski haberleri filtrele
                     if ((now - pubDate) > threeDaysInMs) {
                         console.log(`Skipping old news item: ${title}, Date: ${pubDate}`);
                         return;
                     }
 
-                    const uniqueKey = `${sourcePrefix}${newsId}-${title}-${pubDate.toISOString()}`; // Benzersiz anahtar
+                    const uniqueKey = `${sourcePrefix}${newsId}-${title}-${pubDate.toISOString()}`;
 
                     let imageUrl = '';
                     let description = item.querySelector('description')?.textContent || '';
@@ -727,13 +737,13 @@ async function fetchNews() {
                     }
                     if (!imageUrl) {
                         console.log(`No image found for item in ${category} from ${source}, link: ${link}`);
-                        imageUrl = 'https://via.placeholder.com/150'; // Placeholder
+                        imageUrl = 'https://via.placeholder.com/150';
                     }
 
                     const currentTime = new Date();
-                    const thirtyMinutes = 30 * 60 * 1000; // 30 dakika milisaniye cinsinden
+                    const thirtyMinutes = 30 * 60 * 1000;
                     const timeDiff = currentTime - pubDate;
-                    const isNew = timeDiff <= thirtyMinutes; // Son 30 dakikada yayınlandıysa yeni
+                    const isNew = timeDiff <= thirtyMinutes;
                     console.log(`News: ${title}, pubDate: ${pubDate}, currentTime: ${currentTime}, timeDiff: ${timeDiff}, isNew: ${isNew}`);
 
                     const newsItem = {
@@ -743,13 +753,13 @@ async function fetchNews() {
                         description,
                         date: pubDate,
                         link,
-                        source: link.includes('milliyet') ? 'milliyet' : 
-                               link.includes('haberturk') ? 'haberturk' : 
-                               link.includes('onedio') ? 'onedio' : 
-                               link.includes('otoaktuel') ? 'otoaktuel' : 
-                               link.includes('mynet') ? 'mynet' : 
+                        source: link.includes('milliyet') ? 'milliyet' :
+                               link.includes('haberturk') ? 'haberturk' :
+                               link.includes('onedio') ? 'onedio' :
+                               link.includes('otoaktuel') ? 'otoaktuel' :
+                               link.includes('mynet') ? 'mynet' :
                                link.includes('finansingundemi') ? 'finansingundemi' : 'unknown',
-                        isNew: isNew // Direkt olarak isNew değerini sakla
+                        isNew: isNew
                     };
 
                     console.log(`Adding news item to ${category} from ${source}: ${title}, Link: ${link}, Image: ${imageUrl}, Unique Key: ${uniqueKey}, Source: ${newsItem.source}, Date: ${pubDate}, isNew: ${newsItem.isNew}`);
@@ -762,7 +772,6 @@ async function fetchNews() {
                         if (!existing.categories.includes(category)) {
                             existing.categories.push(category);
                         }
-                        // Eğer mevcut haber zaten varsa ve yeni geldiyse isNew güncelle
                         if (isNew) {
                             existing.isNew = true;
                         }
@@ -776,10 +785,8 @@ async function fetchNews() {
             console.log(`First news item: ${JSON.stringify(allNews[0])}`);
         }
 
-        // lastFetchTime'ı güncelle
         lastFetchTime = new Date();
 
-        // Tarihe göre sırala (en yeniden eskiye)
         allNews.sort((a, b) => {
             const dateA = a.date.getTime();
             const dateB = b.date.getTime();
@@ -800,13 +807,12 @@ async function fetchNews() {
         console.error('Error fetching news:', error);
         newsList.innerHTML = `<p>Haberler yüklenemedi: ${error.message}</p>`;
     } finally {
-        isFetching = false; // Kilidi kapat
+        isFetching = false;
         console.log('Fetch completed, lock released.');
     }
 }
 
-// Debounce ile fetchNews fonksiyonunu sar
-const debouncedFetchNews = debounce(fetchNews, 500); // 500ms bekleme süresi
+const debouncedFetchNews = debounce(fetchNews, 500);
 
 // Haberleri render et
 function renderNews() {
@@ -864,8 +870,6 @@ function renderNews() {
     });
 
     lastRenderedNewsCount = displayedNewsCount;
-
-    // Boyutları güncelle
     updateNewsSize();
 
     console.log(`Total news: ${allNews.length}, Displayed news: ${displayedNewsCount}, Last rendered: ${lastRenderedNewsCount}`);
@@ -948,3 +952,4 @@ document.getElementById('news-list').addEventListener('scroll', function () {
 // İlk yükleme
 updateSourceBar();
 fetchNews();
+checkCookieConsent(); // Çerez kontrolünü başlat
