@@ -96,8 +96,6 @@
     --scrollbar-thumb-hover: #888;
 }
 
-
-
 * {
     margin: 0;
     padding: 0;
@@ -160,6 +158,12 @@ body {
     font-weight: bold;
     color: var(--header-text-color);
     text-decoration: none;
+}
+
+.beta-label {
+    font-size: 16px; /* Genel ekranlar için font boyutunu küçülttüm */
+    color: var(--header-text-color);
+    font-weight: normal;
 }
 
 .header-right {
@@ -704,9 +708,8 @@ body {
     }
 
     .beta-label {
-        font-size: 6px;
+        font-size: 12px; /* Mobil ekranlar için daha küçük font boyutu */
         color: var(--header-text-color);
         font-weight: normal;
-        font-size: small;
     }
 }
