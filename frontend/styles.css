@@ -96,8 +96,6 @@
     --scrollbar-thumb-hover: #888;
 }
 
-
-
 * {
     margin: 0;
     padding: 0;
@@ -140,7 +138,7 @@ body {
     color: var(--header-text-color);
     font-size: 24px;
     cursor: pointer;
-    animation: bounce 1s infinite; /* Zıplama animasyonu */
+    animation: bounce 1s infinite;
 }
 
 @keyframes bounce {
@@ -173,7 +171,7 @@ body {
     font-weight: bold;
     color: var(--header-text-color);
     margin-right: 10px;
-    white-space: nowrap; /* Metnin taşmasını önler */
+    white-space: nowrap;
 }
 
 #clock,
@@ -245,7 +243,7 @@ body {
     justify-content: flex-start;
     align-items: flex-start;
     gap: 0;
-    min-height: 40px; /* Menü boşken bile görünür olması için */
+    min-height: 40px;
 }
 
 .category-source-menu:empty::after {
@@ -315,17 +313,6 @@ body {
     color: var(--category-btn-active-text);
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
 }
-
-/* Renkli kategoriler için eski yapı */
-.category-btn.active[data-category="Son Dakika"] { background-color: #ff0000; color: white; }
-.category-btn.active[data-category="Spor"] { background-color: #008000; color: white; }
-.category-btn.active[data-category="Magazin"] { background-color: #800080; color: white; }
-.category-btn.active[data-category="Dünya"] { background-color: #ffa500; color: white; }
-.category-btn.active[data-category="Gündem"] { background-color: #0000ff; color: white; }
-.category-btn.active[data-category="Politika"] { background-color: #666; color: white; }
-.category-btn.active[data-category="Otomobil"] { background-color: #00008B; color: white; }
-.category-btn.active[data-category="Teknoloji"] { background-color: #00BFFF; color: white; }
-.category-btn.active[data-category="Ekonomi"] { background-color: #466e98; color: white; }
 
 .main-content {
     display: flex;
@@ -496,7 +483,7 @@ body {
     margin-right: 10px;
 }
 
-/* Mobil Menüdeki Ayar Butonları (Sadece Sıfırlama Butonu Kaldı) */
+/* Mobil Menüdeki Ayar Butonları */
 .mobile-settings {
     display: flex;
     justify-content: center;
@@ -574,6 +561,172 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
+}
+
+/* Çerez Bildirimi Stilleri */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px;
+    z-index: 3000;
+    display: none;
+}
+
+.cookie-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.cookie-content p {
+    flex: 1;
+    margin-right: 20px;
+    font-size: 14px;
+}
+
+.cookie-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cookie-buttons button,
+.cookie-buttons a {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    color: white;
+}
+
+#cookie-accept {
+    background-color: #28a745;
+}
+
+#cookie-reject {
+    background-color: #dc3545;
+}
+
+#cookie-settings {
+    background-color: #007bff;
+}
+
+#cookie-policy-link {
+    background-color: transparent;
+    color: #00bfff;
+}
+
+/* Çerez Modal Stilleri */
+.cookie-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 4000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.cookie-modal-content {
+    background-color: var(--main-content-bg);
+    color: var(--text-color);
+    padding: 20px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 5px;
+}
+
+.cookie-option {
+    margin: 10px 0;
+}
+
+.cookie-option label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.cookie-option input {
+    margin-right: 10px;
+}
+
+#cookie-save,
+#cookie-cancel {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#cookie-save {
+    background-color: #28a745;
+    color: white;
+}
+
+#cookie-cancel {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Çerez Politikası Sayfası Stilleri */
+.cookie-policy-content {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cookie-policy-content h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.cookie-policy-content h2 {
+    font-size: 18px;
+    margin: 20px 0 10px;
+}
+
+.cookie-policy-content p,
+.cookie-policy-content ul {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.cookie-policy-content ul {
+    padding-left: 20px;
+}
+
+.cookie-policy-content a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.cookie-policy-content a:hover {
+    text-decoration: underline;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 8px 15px;
+    background-color: var(--category-btn-bg);
+    color: var(--category-btn-text);
+    border-radius: 5px;
 }
 
 /* Responsive */
