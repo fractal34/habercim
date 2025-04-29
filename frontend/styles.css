@@ -14,6 +14,15 @@
     --category-btn-text: white;
     --category-btn-active-bg: #fff;
     --category-btn-active-text: #ff4500;
+    --category-btn-active-sondakika: #ff0000;
+    --category-btn-active-spor: #008000;
+    --category-btn-active-magazin: #800080;
+    --category-btn-active-dunya: #ffa500;
+    --category-btn-active-gundem: #0000ff;
+    --category-btn-active-politika: #666;
+    --category-btn-active-otomobil: #00008B;
+    --category-btn-active-teknoloji: #00BFFF;
+    --category-btn-active-ekonomi: #466e98;
     --source-menu-bg: #2d3123;
     --source-menu-text: white;
     --source-menu-border-top: #ff6a36;
@@ -67,6 +76,15 @@
     --category-btn-text: #e0e0e0;
     --category-btn-active-bg: #666;
     --category-btn-active-text: #ff4500;
+    --category-btn-active-sondakika: #cc0000;
+    --category-btn-active-spor: #006600;
+    --category-btn-active-magazin: #660066;
+    --category-btn-active-dunya: #cc8400;
+    --category-btn-active-gundem: #0000cc;
+    --category-btn-active-politika: #555;
+    --category-btn-active-otomobil: #000066;
+    --category-btn-active-teknoloji: #009FCC;
+    --category-btn-active-ekonomi: #35527a;
     --source-menu-bg: #1f2317;
     --source-menu-text: #e0e0e0;
     --source-menu-border-top: #cc5630;
@@ -95,8 +113,6 @@
     --scrollbar-thumb: #666;
     --scrollbar-thumb-hover: #888;
 }
-
-
 
 * {
     margin: 0;
@@ -160,6 +176,12 @@ body {
     font-weight: bold;
     color: var(--header-text-color);
     text-decoration: none;
+}
+
+.beta-label {
+    font-size: 16px !important; /* Logo font boyutundan bağımsız olarak küçült */
+    color: var(--header-text-color);
+    font-weight: normal;
 }
 
 .header-right {
@@ -316,16 +338,41 @@ body {
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
 }
 
-/* Renkli kategoriler için eski yapı */
-.category-btn.active[data-category="Son Dakika"] { background-color: #ff0000; color: white; }
-.category-btn.active[data-category="Spor"] { background-color: #008000; color: white; }
-.category-btn.active[data-category="Magazin"] { background-color: #800080; color: white; }
-.category-btn.active[data-category="Dünya"] { background-color: #ffa500; color: white; }
-.category-btn.active[data-category="Gündem"] { background-color: #0000ff; color: white; }
-.category-btn.active[data-category="Politika"] { background-color: #666; color: white; }
-.category-btn.active[data-category="Otomobil"] { background-color: #00008B; color: white; }
-.category-btn.active[data-category="Teknoloji"] { background-color: #00BFFF; color: white; }
-.category-btn.active[data-category="Ekonomi"] { background-color: #466e98; color: white; }
+.category-btn.active[data-category="Son Dakika"] {
+    color: var(--category-btn-active-sondakika);
+}
+
+.category-btn.active[data-category="Spor"] {
+    color: var(--category-btn-active-spor);
+}
+
+.category-btn.active[data-category="Magazin"] {
+    color: var(--category-btn-active-magazin);
+}
+
+.category-btn.active[data-category="Dünya"] {
+    color: var(--category-btn-active-dunya);
+}
+
+.category-btn.active[data-category="Gündem"] {
+    color: var(--category-btn-active-gundem);
+}
+
+.category-btn.active[data-category="Politika"] {
+    color: var(--category-btn-active-politika);
+}
+
+.category-btn.active[data-category="Otomobil"] {
+    color: var(--category-btn-active-otomobil);
+}
+
+.category-btn.active[data-category="Teknoloji"] {
+    color: var(--category-btn-active-teknoloji);
+}
+
+.category-btn.active[data-category="Ekonomi"] {
+    color: var(--category-btn-active-ekonomi);
+}
 
 .main-content {
     display: flex;
@@ -496,7 +543,7 @@ body {
     margin-right: 10px;
 }
 
-/* Mobil Menüdeki Ayar Butonları (Sadece Sıfırlama Butonu Kaldı) */
+/* Mobil Menüdeki Ayar Butonları */
 .mobile-settings {
     display: flex;
     justify-content: center;
@@ -701,12 +748,5 @@ body {
     .header-right .size-btn {
         padding: 4px 8px;
         font-size: 12px;
-    }
-
-    .beta-label {
-        font-size: 6px;
-        color: var(--header-text-color);
-        font-weight: normal;
-        font-size: small;
     }
 }
