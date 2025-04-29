@@ -54,13 +54,12 @@
     --category-ekonomi: #466e98;
 }
 
-/* Karanlık Tema: Sadece Header, Kategori Menüsü ve Haber Listesi için */
-.header[data-theme="dark"] {
+[data-theme="dark"] {
+    /* Karanlık Tema */
+    --background-color: #1a1a1a;
+    --text-color: #e0e0e0;
     --header-bg: #cc3700;
     --header-text-color: #e0e0e0;
-}
-
-.category-menu[data-theme="dark"] {
     --category-menu-bg: #b03200;
     --category-menu-border-top: #cc5630;
     --category-menu-border-bottom: #a02c00;
@@ -68,16 +67,11 @@
     --category-btn-text: #e0e0e0;
     --category-btn-active-bg: #666;
     --category-btn-active-text: #ff4500;
-}
-
-.category-source-menu[data-theme="dark"] {
     --source-menu-bg: #1f2317;
     --source-menu-text: #e0e0e0;
     --source-menu-border-top: #cc5630;
     --source-menu-border-bottom: #a02c00;
-}
-
-#news-list[data-theme="dark"] {
+    --main-content-bg: #2c2c2c;
     --news-list-bg: #333;
     --news-list-border: #555;
     --news-item-border: #555;
@@ -86,20 +80,20 @@
     --news-title-text: #e0e0e0;
     --news-date-bg: rgba(0, 0, 0, 0.5);
     --news-date-text: #e0e0e0;
+    --news-detail-bg: #444;
     --news-new-bg: #cc0000;
     --news-new-text: #e0e0e0;
-    --scrollbar-track: #333;
-    --scrollbar-thumb: #666;
-    --scrollbar-thumb-hover: #888;
-}
-
-/* Mobil Menü için Karanlık Tema */
-.mobile-menu[data-theme="dark"] {
     --mobile-menu-bg: rgba(30, 30, 30, 0.9);
     --mobile-menu-text: #e0e0e0;
     --settings-btn-bg: #2f2727;
     --settings-btn-text: #e0e0e0;
     --settings-btn-hover-bg: #b01509;
+    --overlay-bg: #2c2c2c;
+    --overlay-header-bg: #444;
+    --overlay-header-border: #666;
+    --scrollbar-track: #333;
+    --scrollbar-thumb: #666;
+    --scrollbar-thumb-hover: #888;
 }
 
 * {
@@ -209,7 +203,7 @@ body {
     display: flex;
     background-color: var(--category-menu-bg);
     padding: 8px 20px;
-    overflowing: auto;
+    overflow-x: auto;
     white-space: nowrap;
     border-top: 1px solid var(--category-menu-border-top);
     border-bottom: 1px solid var(--category-menu-border-bottom);
@@ -529,7 +523,7 @@ body {
     background-color: var(--settings-btn-hover-bg);
 }
 
-/* Haber Detay Overlay (Mobil için) - Her zaman aydınlık tema */
+/* Haber Detay Overlay */
 .news-detail-overlay {
     position: fixed;
     top: 0;
