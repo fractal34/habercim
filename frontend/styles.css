@@ -12,7 +12,7 @@
     --category-menu-border-bottom: #d13700;
     --category-btn-bg: #333;
     --category-btn-text: white;
-    --category-btn-active-bg: #fff;
+    --category-btn-active-bg: #666; /* Aydınlık temada buton arka planını karanlık temadaki gibi koyu yaptım */
     --category-btn-active-text: #ff4500;
     --category-btn-active-sondakika: #ff0000;
     --category-btn-active-spor: #008000;
